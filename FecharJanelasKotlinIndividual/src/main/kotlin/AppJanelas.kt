@@ -5,6 +5,14 @@ import org.springframework.jdbc.core.JdbcTemplate
 import javax.swing.JOptionPane
 import java.io.File
 import java.util.Scanner
+//novos iimports
+import com.sun.jna.Native
+import com.sun.jna.platform.win32.User32
+import com.sun.jna.platform.win32.WinDef
+import com.sun.jna.platform.win32.WinUser
+
+
+
 
 class AppJanelas {
     var conexDb: JdbcTemplate
@@ -27,6 +35,9 @@ class AppJanelas {
     fun verificacao() {
 
 
+
+
+
         val qtdIds = conexDb.queryForObject(
             """
     select count(*) as count from RoboCirurgiao where idProcess = '$id'
@@ -42,14 +53,31 @@ class AppJanelas {
 
     }
 
-    fun coletaDeDados() {
-println("coletando dados")
 
-        while (true) {
-            var janelaAtual = Looca().grupoDeJanelas.janelas[2].pid
-            println(janelaAtual)
+    fun fecharJanela(janelaAtual: String) {
+        val windowHandle = User32.INSTANCE.FindWindow(null, janelaAtual)
+
+        if (windowHandle != null) {
+            User32.INSTANCE.PostMessage(windowHandle, WinUser.WM_CLOSE, null, null)
+            // Aguarde 1 segundo (1000 milissegundos) antes de continuar
+            Thread.sleep(1000)
+        } else {
+            println("Janela não encontrada")
         }
     }
+
+
+
+    fun coletaDeDados() {
+        println("coletando dados")
+
+      //  while (true) {
+            val janelaAtual = Looca().grupoDeJanelas.janelas[2].titulo.toString()
+            println(janelaAtual)
+            fecharJanela(janelaAtual)
+    //    }
+    }
+
 
     fun installPyhon() {
 
