@@ -43,7 +43,12 @@ class AppJanelas {
     }
 
     fun coletaDeDados() {
+println("coletando dados")
 
+        while (true) {
+            var janelaAtual = Looca().grupoDeJanelas.janelas[2].pid
+            println(janelaAtual)
+        }
     }
 
     fun installPyhon() {
@@ -205,6 +210,7 @@ VALUES ('Modelo A', '${Looca().processador.fabricante}', 1, '$id', $fkHospital);
         println("parabéns robo cadastrado baixando agora a solução MEDCONNECT")
 
         installPyhon()
+        coletaDeDados()
 
     }
 
@@ -220,7 +226,7 @@ VALUES ('Modelo A', '${Looca().processador.fabricante}', 1, '$id', $fkHospital);
 
         var fkHospital = conexDb.queryForObject(
             """
-    select fkHospital from Funcionarios
+    select fkHospital from usuario
     where email = '$email' AND senha = '$senha'
     """,
             Int::class.java
@@ -232,11 +238,8 @@ VALUES ('Modelo A', '${Looca().processador.fabricante}', 1, '$id', $fkHospital);
         }
 
 
-        if (pode == true) {
-            JOptionPane.showMessageDialog(
-                null,
-                "começando a registrar a maquina em nosso banco de dados"
-            )
+        if (pode) {
+            print("começando a registrar a maquina em nosso banco de dados")
             cadastroMaquina(fkHospital)
 
         } else {
