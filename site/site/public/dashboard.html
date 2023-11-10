@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <link rel="shortcut icon" href="../assets/icon/favicon2.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedConnect | Dashboards</title>
+
+    <link rel="stylesheet" href="../css/dashboard.css">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+
+    <!-- scripts do Chart.js - 2022-1 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/validacoesUsuario.js"></script>
+
+    <!--FONT AWESOME-->
+    <script src="https://kit.fontawesome.com/9f7414eb10.js" crossorigin="anonymous"></script>
+
+</head>
+
+<!-- <body onload=" atualizarFeed()"> -->
+
+<body onload="buscarUltimosAlertas()">
+
+    <!-- <div class="janela">
+        <div class="header-left">
+        
+             <div class="hello">
+                <h3>Olá, <span id="b_usuario">usuário</span>!</h3>
+            </div>
+    
+            <div class="btn-nav">
+
+                <div id="grafico1">
+                </div>
+                <div id="grafico2">
+                </div>
+                <div id="grafico3">
+                </div>
+            </div>
+
+            <button class="btn-logout" onclick="voltarHome()">
+                <h3>Sair</h3>
+            </button>
+
+        </div>
+
+        <div class="dash">
+            <div id="alerta">
+            </div>
+
+            <div class="btns-dash" id="btnAquario">
+            </div>
+        </div>
+    </div> -->
+
+    <div class="principal">
+        <div class="sidebar">
+            <div class="content-sidebar">
+                <div class="logo-sidebar">
+                    <img src="../Img/logo horizontal sem fundo.png" alt="">
+                </div>
+
+                <div class="options-sidebar">
+                    <div class="opt" id="aqui">
+                        <img src="../Img/icons8-gráfico-combinado-30.png" alt="">
+                        <a href="#">Dashboard Geral</a>
+                    </div>
+
+                    <div class="opt">
+                        <img src="../Img/icons8-robô-48.png" alt="">
+                        <a href="dash-robo.html">Dashboard Rôbos </a>
+                        
+                    </div>
+
+                    <div class="opt" id="gerenciar-usuarios">
+                        <img src="../Img/icons8-usuário-30.png" id="diminuir" alt="">
+                        <a href="dash-gerenciar-users.html">Gerenciar Usuários</a>
+                    </div>
+
+                    <div class="opt">
+                        <img src="../Img/icons8-usuário-30.png" id="diminuir" alt="">
+                        <a href="perfil.html">Perfil</a>
+                    </div>
+
+                    <div class="opt" id="gerenciar-cirurgias">
+                        <img src="Img/icons8-hospital-50.png" id="diminuir" alt="">
+                        <a href="cadastrar-cirurgia.html">Gerenciar Cirurgia</a>
+                    </div>
+
+                    <div class="opt">
+                        <img src="../Img/icons8-assistente-48.png" alt="">
+                        <a href="dash-suporte.html">Suporte</a>
+                    </div>
+
+                    <div class="opt">
+                        <img src="../Img/icons8-alerta-30.png" alt="">
+                        <a href="#">Chamado</a>
+                    </div>
+                </div>
+
+                <div class="quit-button">
+                    <div class="opt">
+                        <img src="../Img/icons8-sair-30.png" alt="">
+                        <a href="index.html" onclick="deslogar()">Log Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content" style="height: fit-content;">
+            <div class="header-content">
+                <div class="navbar-header">
+                    <h3>Relatório Geral</h3>
+                    <p>Olá, <span style="font-weight: bolder;" id="b_usuario"></span></p>
+                </div>
+            </div>
+            <div class="header-before" style="height: fit-content;">
+                <div class="kpis">
+                    <div class="kpi">
+                        <div class="container-kpi">
+                            <div class="indicador red"></div>
+                            <div class="conteudo-kpi">
+                                <p>Máquinas em Estado Crítico</p>
+                                <div class="conteudo-alertas">
+                                    <div class="container-texto-alertas">
+                                        <h1 class="texto-alertas" id="contCritico"></h1>
+                                    </div>
+                                    <div class="container-toogle">
+                                        <select id="visuCritico" class="toggle">
+                                            <option value="">Visualizar Máquinas</option>
+                                            <select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="kpi">
+                        <div class="container-kpi">
+                            <div class="indicador orange"></div>
+                            <div class="conteudo-kpi">
+                                <p>Máquinas em Estado Urgente</p>
+                                <div class="conteudo-alertas">
+                                    <div class="container-texto-alertas">
+                                        <h1 class="texto-alertas" id="contUrgente"></h1>
+                                    </div>
+                                    <div class="container-toogle">
+                                        <select id="visuUrgente" class="toggle" alt="">
+                                            <option value="">Visualizar Máquinas</option>
+                                            <select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="kpi">
+                        <div class="container-kpi">
+                            <div class="indicador yellow"></div>
+                            <div class="conteudo-kpi">
+                                <p>Máquinas em Estado de Alerta</p>
+                                <div class="conteudo-alertas">
+                                    <div class="container-texto-alertas">
+                                        <h1 class="texto-alertas" id="contAlerta"></h1>
+                                    </div>
+                                    <div class="container-toogle">
+                                        <select id="visuAlerta" class="toggle" alt="">
+                                            <option value="">Visualizar Máquinas</option>
+                                            <select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpis">
+                    <div class="kpi">
+                        <div class="container-kpi">
+                            <div class="indicador red"></div>
+                            <div class="conteudo-kpi">
+                                <p>Qtd de Máquinas em Estado de Crítico esse mês</p>
+                                <h1 id="qtdAlerta"></h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="kpi">
+                        <div class="container-kpi">
+                            <div class="indicador orange"></div>
+                            <div class="conteudo-kpi">
+                                <p>Qtd de Máquinas em Estado Urgente esse mês</p>
+                                <h1 id="qtdUrgente"></h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="kpi">
+                        <div class="container-kpi">
+                            <div class="indicador yellow"></div>
+                            <div class="conteudo-kpi">
+                                <p>Qtd de Máquinas em Estado de Alerta esse mês</p>
+                                <h1 id="qtdCritico"></h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="div-select">
+                    Visualizar por:
+                    <select name="" id="selectIntervalo">
+                        <option value="DAY">Dia</option>
+                        <option value="MONTH">Mês</option>
+                        <option value="YEAR">Ano</option>
+                    </select>
+                </div>
+                <div class="segunda-parte">
+                    <div class="card-graph card-graph1" style="margin-bottom: 5%;">
+                        <h3>Relatório Geral</h3>
+                        <div class="conteudo-graph-g">
+                            <div class="relatorio-geral">
+                                <div class="img-alerta">
+                                    <img src="./Img/alerta.png" alt="">
+                                </div>
+                                <div class="container-span">
+                                    <span id="spanDado">A CPU passou de 80%</span>
+                                </div>
+                                <div class="container-span">
+                                    <span id="spanDtHora">16/10/2023 18:00</span>
+                                </div>
+                                <div class="container-heading">
+                                    <span id="spanMaquina">Máquina 7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+
+
+</body>
+
+</html>
+
+<script>
+
+    // addEventListener("change", definirSessionStorageFkRobo())
+
+    var elementoSelect = document.querySelector("#selectIntervalo")
+    var opcaoSelecionada = elementoSelect.options[elementoSelect.selectedIndex];
+    var intervalo = opcaoSelecionada.value;
+
+
+    const visuAlerta = document.querySelector("#visuAlerta");
+    const visuUrgente = document.querySelector("#visuUrgente");
+    const visuCritico = document.querySelector("#visuCritico");
+
+    visuAlerta.addEventListener("change", () => {
+        definirSessionStorageMaquina(visuAlerta);
+    });
+    visuUrgente.addEventListener("change", () => {
+        definirSessionStorageMaquina(visuUrgente);
+    });
+    visuCritico.addEventListener("change", () => {
+        definirSessionStorageMaquina(visuCritico);
+    });
+
+    function definirSessionStorageMaquina(elementoSelect) {
+        const optionSelecionada = elementoSelect.value;
+        if (optionSelecionada !== "Visualizar Maquina") {
+            sessionStorage.setItem("FK_ROBO", optionSelecionada);
+        }
+    }
+
+
+    repetirFuncaoBuscarUltimosAlertas()
+
+    function repetirFuncaoBuscarUltimosAlertas() {
+        var elementoSelect = document.querySelector("#selectIntervalo")
+        var opcaoSelecionada = elementoSelect.options[elementoSelect.selectedIndex];
+        var intervalo = opcaoSelecionada.value;
+        setTimeout(function () {
+            buscarUltimosAlertas()
+            buscarQuantidadeDeAlertas(intervalo)
+            repetirFuncaoBuscarUltimosAlertas()
+        }, 5000)
+    }
+
+
+
+    function voltarHome() {
+        window.location = '../index.html'
+    }
+
+    b_usuario.innerHTML = sessionStorage.NOME_USUARIO;
+
+    cargo = sessionStorage.CARGO_USUARIO
+
+
+    gerenciarUsuarios = document.getElementById("gerenciar-usuarios")
+    console.log(gerenciarUsuarios)
+
+    gerenciarCirurgias = document.getElementById("gerenciar-cirurgias")
+    console.log(gerenciarCirurgias)
+
+    if (cargo !== "Admin") {
+        gerenciarUsuarios.style = 'display: none'
+    }
+
+    if (cargo !== "Atendente" && cargo !== "Admin") {
+        gerenciarCirurgias.style = 'display: none'
+    }
+
+
+
+
+    function buscarUltimosAlertas() {
+        fetch(`/alertas/buscarUltimaMedida`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    console.log(`A resposta não foi bem-sucedida. Status: ${response.status}`);
+                    return Promise.reject('Erro na resposta do servidor');
+                }
+            })
+            .then(resposta => {
+                console.log(`Objetos com Alertas:`, resposta);
+                listarAlertas(resposta.critico, "Critico")
+                listarAlertas(resposta.urgente, "Urgente")
+                listarAlertas(resposta.atencao, "Alerta")
+
+                repetirCriacaoElementos(resposta)
+
+            })
+            .catch(err => {
+                console.log(`Houve um erro no fetch dos dados: ${err}`);
+            });
+    }
+
+    function buscarQuantidadeDeAlertas(intervalo) {
+        fetch(`/alertas/buscarQuantidadeDeAlertas/${intervalo}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    console.log(`A resposta não foi bem-sucedida. Status: ${response.status}`);
+                    return Promise.reject('Erro na resposta do servidor');
+                }
+            })
+            .then(resposta => {
+                exibirQuantidadeDeAlertas(resposta.atencao[0].alertas, "Alerta");
+                exibirQuantidadeDeAlertas(resposta.urgente[0].alertas, "Urgente");
+                exibirQuantidadeDeAlertas(resposta.critico[0].alertas, "Critico");
+            })
+            .catch(err => {
+                console.log(`Houve um erro no fetch dos dados: ${err}`);
+            });
+    }
+
+
+
+    function listarAlertas(alertas, tipoAlerta) {
+        const idContadorAlerta = "cont" + tipoAlerta
+        const contadorAlerta = document.querySelector(`#${idContadorAlerta}`)
+        contadorAlerta.textContent = alertas.length
+
+
+        limparElementosVisuAlerta(tipoAlerta)
+        for (alerta in alertas) {
+            const idVisuAlerta = "visu" + tipoAlerta
+            const visuAlerta = document.querySelector(`#${idVisuAlerta}`)
+            const option = document.createElement("option")
+            option.value = alertas[alerta].fkRobo
+            option.textContent = (`Máquina ${alertas[alerta].fkRobo}`)
+            visuAlerta.appendChild(option)
+        }
+
+    }
+
+    function exibirQuantidadeDeAlertas(alertas, tipoAlerta) {
+        const idContadorAlerta = "qtd" + tipoAlerta
+
+        const elementoQuantidadeAlerta = document.querySelector(`#${idContadorAlerta}`)
+        elementoQuantidadeAlerta.textContent = alertas
+
+    }
+
+    function repetirCriacaoElementos(alertas) {
+        limparElementos()
+        criarElementosRelatorioGeral(alertas.critico)
+        criarElementosRelatorioGeral(alertas.urgente)
+        criarElementosRelatorioGeral(alertas.atencao)
+    }
+
+    function criarElementosRelatorioGeral(alertaSeparado) {
+
+        for (alerta in alertaSeparado) {
+            if (alertaSeparado[alerta].fkRobo != undefined) {
+                var divRelatorioGeral = document.createElement("div")
+                divRelatorioGeral.classList.add("relatorio-geral")
+
+                var divImgAlerta = document.createElement("div")
+                divImgAlerta.classList.add("img-alerta")
+                var imgAlerta = document.createElement("img")
+                imgAlerta.src = "./Img/alerta.png"
+                divImgAlerta.appendChild(imgAlerta)
+
+                var divSpanDado = document.createElement("div")
+                divSpanDado.classList.add("container-span")
+                var spanDado = document.createElement("span")
+                spanDado.id = "spanDado"
+                spanDado.textContent = alertaSeparado[alerta].nome_componente
+                divSpanDado.appendChild(spanDado)
+
+                var divSpanDtHora = document.createElement("div")
+                divSpanDtHora.classList.add("container-span")
+                var spanDtHora = document.createElement("span")
+                spanDtHora.id = "spanDtHora"
+                spanDtHora.textContent = alertaSeparado[alerta].data_formatada
+                divSpanDtHora.appendChild(spanDtHora)
+
+                var divSpanMaquina = document.createElement("div")
+                divSpanMaquina.classList.add("container-heading")
+                var spanMaquina = document.createElement("span")
+                spanMaquina.id = "spanMaquina"
+                spanMaquina.textContent = (`Máquina ${alertaSeparado[alerta].fkRobo}`)
+                divSpanMaquina.appendChild(spanMaquina)
+
+                divRelatorioGeral.appendChild(divImgAlerta)
+                divRelatorioGeral.appendChild(divSpanDado)
+                divRelatorioGeral.appendChild(divSpanDtHora)
+                divRelatorioGeral.appendChild(divSpanMaquina)
+
+                document.querySelector(".conteudo-graph-g").appendChild(divRelatorioGeral)
+            }
+
+        }
+
+    }
+
+    function limparElementos() {
+        const elementos = document.querySelectorAll(".relatorio-geral")
+        for (elemento of elementos) {
+            elemento.remove()
+        }
+    }
+
+    function limparElementosVisuAlerta(tipoAlerta) {
+        const elementos = document.querySelectorAll(`#visu${tipoAlerta} option`)
+        for (elemento of elementos) {
+            if (elemento.textContent != "Visualizar Máquinas") {
+                elemento.remove()
+            }
+
+        }
+    }
+
+
+
+</script>

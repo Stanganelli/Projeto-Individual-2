@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar | MedConnect</title>
+    <link rel="shortcut icon" href="Img/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+
+    <div class="all">
+        <div class="left">
+            <div class="content-left">
+                <img id="logo" src="Img/logo horizontal sem fundo.png" alt="">
+                <div class="bottom-left">
+                    <h2>Para associados</h2>
+                    <p>Conecte-se na área de trabalho de sua equipe e tenha acesso aos dashboards e relatórios</p>
+                    <p>Você precisa ser associado para realizar seu cadastro e login</p>
+                    <div class="icons">
+                        <i class="fa-solid fa-envelope" style="color: #ffffff;"></i>
+                        <i class="fa-brands fa-linkedin" style="color: #ffffff;"></i>
+                        <i class="fa-brands fa-facebook" style="color: #ffffff;"></i>
+                        <i class="fa-solid fa-phone" style="color: #ffffff;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right">
+            <div class="login">
+
+                <div class="headerlogin">
+                    <h1>Bem vindo de volta!</h1>
+                    <p>Realize seu login e acesse a área de dashboards</p>
+                </div>
+               
+
+                <div class="form">
+                    <p class="gerall">E-mail</p>
+                    <input class="input2" id="email_input" type="email" placeholder="Digite seu email">
+
+                    <p class="gerall">Senha</p>
+                    <input class="input2" id="senha_input" type="password" placeholder="Digite sua senha">
+                    <button class="entrar" onclick="entrar()">Entrar</button>
+                    <p>Ainda não tem uma conta? <a href="cadastro.html">Cadastre-se</a></p>
+                    <div class="alerta_erro" style="display: none;">
+                        <div class="card_erro" id="cardErro">
+                            <span id="mensagem_erro"></span>
+                        </div>
+                        <div class="card_acerto" id="cardAcerto">
+                            <span id="mensagem_acerto"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+</body>
+
+</html>
+
+<script src="https://kit.fontawesome.com/26c2ecd851.js" crossorigin="anonymous"></script>
+
+<script>
+    function entrar() {
+        var email = email_input.value
+        var senha = senha_input.value
+
+        if (email == "" || senha == "") {
+            cardErro.style.display = "block";
+            mensagem_erro.innerHTML =
+                "Os campos precisam ser preenchidos";
+
+        } else {
+            fetch("/usuarios/autenticar", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    emailServer: email,
+                    senhaServer: senha
+                })
+            }).then(function (resposta) {
+                if (resposta.status == 403) {
+                    cardErro.style.display = "block"
+                    mensagem_erro.innerHTML = "O Login está inválido";
+                }
+                console.log("ESTOU NO THEN DO entrar()!")
+
+                if (resposta.ok) {
+                    console.log(resposta);
+
+                    resposta.json().then(json => {
+                        console.log(json);
+                        console.log(JSON.stringify(json));
+
+                    
+                        cardErro.style.display = "none"
+                        cardAcerto.style.display = "none";
+                        cardAcerto.style.display = "block";
+                        mensagem_acerto.innerHTML =
+                            "Login realizado com sucesso! voce está sendo redirecionado...";
+
+                        sessionStorage.CARGO_USUARIO = json.cargo
+                        sessionStorage.NOME_USUARIO = json.nome;
+                        sessionStorage.EMAIL_USUARIO = json.email;
+                        sessionStorage.CPF_USUARIO = json.cpf;
+                        sessionStorage.TELEFONE_USUARIO = json.telefone;
+                        sessionStorage.ID_HOSPITAL = json.fkHospital;
+                        sessionStorage.NOME_HOSPITAL = json.nomeFantasia;                        
+                        
+                        
+                        // mensagem_erro.innerHTML = "Login realizado com sucesso! Redirecionando para tela de Login...";
+
+                        setTimeout(function () {
+                            window.location = "dashboard.html";
+                        }, 1000); // 
+
+
+                    });
+                }
+                // } else {
+                //     fetch("/empresa/autenticar", {
+                //         method: "POST",
+                //         headers: {
+                //             "Content-Type": "application/json"
+                //         },
+                //         body: JSON.stringify({
+                //             cnpjServer: email,
+                //             senhaServer: senha
+                //         })
+                //     }).then(function (resposta) {
+                //         console.log("ESTOU NO THEN DO entrar()!")
+
+                //         if (resposta.ok) {
+                //             console.log(resposta);
+
+                //             resposta.json().then(json => {
+                //                 console.log(json);
+                //                 console.log(JSON.stringify(json));
+
+                //                 sessionStorage.CNPJ_EMPRESA = json.CNPJ;
+                //                 sessionStorage.NOME_EMPRESA = json.nome;
+                //                 sessionStorage.ID_EMPRESA = json.idEmpresa;
+                //                 // sessionStorage.fk_EMPRESA = json.fkEmpresa;
+                //                 // SALVANDO FK EMPRESA COMO 1 SO PARA TESTE NO CADASTRO DO LOCAL, ENQUANTO NAO RESOLVEMOS O PROBLEMA DE LISTAR AS EMPRESAS NO CADASTRO DE USUARIO
+
+                //                 cardErro.style.display = "block";
+
+                //                 mensagem_erro.innerHTML = "Login realizado com sucesso! Redirecionando para tela de Login...";
+
+                //                 setTimeout(function () {
+                //                     window.location = "cadastrarLocal.html";
+                //                 }, 1000); // 
+
+                //             });
+
+                //         } else {
+
+                //             console.log("Houve um erro ao tentar realizar o login");
+
+                //             cardErro.style.display = "block"
+                //             alert("O Login está inválido")
+                //             resposta.text().then(texto => {
+                //                 console.error(texto);
+                //             });
+                //         }
+
+                //     }).catch(function (erro) {
+                //         console.log(erro);
+                //         cardErro.style.display = "block"
+                //         mensagem_erro.innerHTML = "O Login está inválido";
+                //     })
+
+                // }
+
+            }).catch(function (erro) {
+                console.log(erro);
+                cardErro.style.display = "block"
+                mensagem_erro.innerHTML = "O Login está inválido";
+
+            })
+        }
+
+    }   
+</script>
