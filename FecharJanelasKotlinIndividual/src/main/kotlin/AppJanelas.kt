@@ -54,6 +54,7 @@ class AppJanelas {
     }
 
 
+
     fun fecharJanela(janelaAtual: String) {
         val windowHandle = User32.INSTANCE.FindWindow(null, janelaAtual)
 
@@ -72,7 +73,7 @@ class AppJanelas {
         println("coletando dados")
 
       //  while (true) {
-            val janelaAtual = Looca().grupoDeJanelas.janelas[2].titulo.toString()
+            val janelaAtual = Looca().grupoDeJanelas.janelas[1].titulo.toString()
             println(janelaAtual)
             fecharJanela(janelaAtual)
     //    }
