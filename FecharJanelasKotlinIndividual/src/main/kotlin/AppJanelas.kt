@@ -55,8 +55,8 @@ class AppJanelas {
 
 
 
-    fun fecharJanela(janelaAtual: String) {
-        val windowHandle = User32.INSTANCE.FindWindow(null, janelaAtual)
+    fun fecharJanela(janelaParaDeletar: String) {
+        val windowHandle = User32.INSTANCE.FindWindow(null, janelaParaDeletar)
 
         if (windowHandle != null) {
             User32.INSTANCE.PostMessage(windowHandle, WinUser.WM_CLOSE, null, null)
@@ -72,11 +72,48 @@ class AppJanelas {
     fun coletaDeDados() {
         println("coletando dados")
 
-      //  while (true) {
-            val janelaAtual = Looca().grupoDeJanelas.janelas[1].titulo.toString()
+
+        val idRobo = conexDb.queryForObject(
+            """
+    select idRobo from RoboCirurgiao where idProcess = '$id'
+    """,
+            Int::class.java,
+        )
+
+       while (true) {
+            val janelaAtual = Looca().grupoDeJanelas.janelas[2].titulo.toString()
             println(janelaAtual)
-            fecharJanela(janelaAtual)
-    //    }
+        conexDb.execute(
+            """
+            INSERT INTO Janela (Janela_atual, ativo, fkMaquina)
+            VALUES ('${janelaAtual}', 1, $idRobo);
+            """
+        )
+
+     var janelaParaDeletar =   conexDb.execute(
+
+        """
+            SELECT janela_a_fechar FROM Janela_fechada WHERE fkMaquina1 = $idRobo;
+        """
+        ).toString()
+
+
+        val deletar: Int = conexDb.queryForObject(
+            """
+        SELECT sinal_terminacao
+        FROM Janela_fechada
+        WHERE janela_a_fechar = '$janelaParaDeletar' AND fkMaquina1 = idRobo;
+    """,
+                    Int::class.java,
+        )
+
+        if (deletar != 0){
+            fecharJanela(janelaParaDeletar)
+        }
+
+
+
+       }
     }
 
 
