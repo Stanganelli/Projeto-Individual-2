@@ -10,8 +10,8 @@ import com.sun.jna.Native
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinUser
-
-
+import kotlin.concurrent.thread
+import java.time.LocalDateTime
 
 
 class AppJanelas {
@@ -94,9 +94,15 @@ class AppJanelas {
            var qtdProcessos = Looca().grupoDeProcessos.totalProcessos
            println(qtdProcessos)
 
+           conexDb.execute(
+               """
+                   INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES ($qtdProcessos, $idRobo, 19, '${LocalDateTime.now()}')
+                   """
+           )
 
 
-     var janelaParaDeletar =   conexDb.execute(
+
+         var janelaParaDeletar =   conexDb.execute(
 
         """
             SELECT janela_a_fechar FROM Janela_fechada WHERE fkMaquina1 = $idRobo;
@@ -117,6 +123,8 @@ class AppJanelas {
             fecharJanela(janelaParaDeletar)
         }
 
+
+           Thread.sleep(20 * 1000)
 
 
        }
