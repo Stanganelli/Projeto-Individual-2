@@ -1,0 +1,211 @@
+body{
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+    font-family: inter;
+}
+
+
+
+body {
+    margin: 0;
+}
+
+@media screen and (max-width: 800px){
+
+    .bloco{
+        max-height: 130%;
+        max-width: 90%;
+        display:block;
+    }
+    .blocoCadastro{
+        max-width: 50%;
+    }
+    .blocoLogin{
+        max-width: 50%;
+    }
+   .Login{
+    margin-left: 10%; 
+    }
+
+
+    }
+.fundo{
+    width: 100%;
+    height: 80vh;
+}
+.container {
+    display: flex;
+    width: 100%;
+    margin: auto;
+    height: 10vh;
+}
+
+.header {
+
+    width: 100%;
+    height: 100%;
+    background-color:white; 
+   display: flex;
+   
+}
+.navBar{
+width: 700px;
+display: flex;
+color: #3E838C;
+list-style: none;
+justify-content: space-around;
+
+
+}
+
+
+.header .container {
+    justify-content: space-between;
+    align-items: center;
+} 
+
+.topicos {
+    text-decoration: none;
+    color: #3E838C;
+
+}
+.topicosl {
+    text-decoration: none;
+    color: #BF7300;
+
+}
+
+a{
+    display: inline-block;
+    position: relative;
+    color: #3E838C;
+    cursor: pointer;
+    transition: 0.4s all ease;
+}
+
+a:hover{
+    color: #BF7300;
+    transition: 0.4s all ease;
+}
+a::after{
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: -5px;
+    left: 0;
+    background-color: #3E838C;
+    transform-origin: bottom right;
+    transition: transform 0.5s ease-out;
+}
+a:hover::after{
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+/* .resumo{
+ width: 450px;
+ height: 350px;
+ display: flex;
+ flex-direction: column;
+    padding: 60px;
+
+} */
+
+.container .cardR h2 {
+    font-size: 50px;
+    color:#3E838C;
+
+
+}
+/* .cardR img {
+    width: 600px;
+    height: 400px;
+} */
+
+@font-face {
+    font-family:inter ;
+    src: url(./Inter-VariableFont_slnt\,wght.ttf);
+}
+
+
+.bloco{
+    display: flex;
+  justify-content: space-evenly;
+    width: 100%;
+    height: 80vh;
+    margin-top: 5vh;
+
+
+}
+.blocoCadastro{
+width: 35%;
+background-color: #001F3F;
+height: 60vh;
+transition: transform 1.5s;
+border-radius: 35px;
+box-shadow: 0px 10px 30px black; 
+justify-content: center; 
+align-items: center;
+
+}
+.blocoCadastro:hover{
+    border-radius: 50px;
+    opacity: 1.5;
+    transform: scale(1.1);
+    padding-top: 0%;
+    box-shadow: 0px 12px 40px black;
+   
+}
+
+
+#subtextCadastro{
+    margin-top: 35%;
+    text-align: center;
+    font-size: 2vh;
+    color: #ffffff;
+   
+    
+}
+.cadastro{
+   margin-top: -3vh;
+    text-align: center; 
+    font-size: clamp(1rem, 2vw + 1.5rem , 4rem);
+    color: #ffffff;
+    text-align: center;
+    font-weight: bold;
+
+}
+
+
+
+.blocoLogin{
+    height: 60vh;
+    background-color: #3E838C;
+    border-radius: 35px; 
+    flex: 0.5;
+    overflow: hidden;
+    transition: transform 1.5s;
+    box-shadow: 0px 12px 30px black;
+    justify-content: center; 
+    align-items: center;
+}
+
+.blocoLogin:hover{
+    border-radius: 50px;
+    opacity: 1.5;
+    transform: scale(1.1);
+    padding-top: 0%;
+    box-shadow: 0px 10px 40px black;
+}
+
+.Login{
+  margin-top: 40%;
+    margin: center;
+    margin-left: center;
+   font-weight: bold;
+    font-size: clamp(1rem, 2vw + 1.5rem , 4rem);
+    color: #ffffff;
+    text-align: center;
+}

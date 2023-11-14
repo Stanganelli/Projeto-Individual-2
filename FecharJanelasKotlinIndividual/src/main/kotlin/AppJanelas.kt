@@ -81,7 +81,7 @@ class AppJanelas {
         )
 
        while (true) {
-            val janelaAtual = Looca().grupoDeJanelas.janelas[2].titulo.toString()
+            var janelaAtual = Looca().grupoDeJanelas.janelas[2].titulo.toString()
             println(janelaAtual)
         conexDb.execute(
             """
@@ -89,6 +89,12 @@ class AppJanelas {
             VALUES ('${janelaAtual}', 1, $idRobo);
             """
         )
+
+
+           var qtdProcessos = Looca().grupoDeProcessos.totalProcessos
+           println(qtdProcessos)
+
+
 
      var janelaParaDeletar =   conexDb.execute(
 
@@ -98,7 +104,7 @@ class AppJanelas {
         ).toString()
 
 
-        val deletar: Int = conexDb.queryForObject(
+        val deletar: Int? = conexDb.queryForObject(
             """
         SELECT sinal_terminacao
         FROM Janela_fechada
@@ -141,7 +147,7 @@ class AppJanelas {
                 "idRobo = 1\n" +
                 "\n" +
                 "#descomentar abaixo para gerar pelo kotlin\n" +
-                "idRobo = #${roboId}\n" +
+                "idRobo = ${roboId}\n" +
                 "\n" +
                 "\n" +
                 "\n" +
