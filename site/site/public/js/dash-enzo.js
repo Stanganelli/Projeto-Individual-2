@@ -4,6 +4,35 @@ var usoDisco = 0;
 var totalDisco = 0;
 
 
+
+function colJanela(fkRobo) {
+    fkRobo = document.getElementById("maquinas-ativas").value;
+    console.log(fkRobo);
+    fetch("/janelas/colJanela", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            idMaquinaServer: fkRobo
+        })
+    })
+    .then(function (response) {
+        if (response.ok) {
+            response.json().then(function (resposta) {
+                const janelaAtual = resposta[0].Janela_atual;
+                janelas.innerHTML = janelaAtual;
+            });
+        } else {
+            console.error('Nenhum dado encontrado ou erro na API');
+        }
+    })
+    .catch(function (error) {
+        console.error(`Erro na obtenção dos dados: ${error.message}`);
+    });
+}
+
+
 function obterDadosGrafico() {
     fkRobo = document.getElementById("maquinas-ativas").value;
     tempoHistorico = document.getElementById("tempo-historico").value;

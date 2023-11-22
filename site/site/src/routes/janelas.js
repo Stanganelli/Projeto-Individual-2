@@ -3,9 +3,11 @@ var router = express.Router();
 
 var janelasController = require("../controllers/janelasController");
 
-router.get("/medidas/:id/:tempo/:linhas", function (req, res) {
-    janelasController.buscarUltimasMedidas(req, res);
+router.get("/ultimas/", function (req, res) {
+    janelasController.buscarUltimasMedidasJa(req, res);
 });
-
+router.post("/colJanela", function (req, res) {
+    janelasController.colJanela(req, res);
+});
 
 module.exports = router;

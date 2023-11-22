@@ -1,6 +1,6 @@
 var janelasModel = require("../models/janelasModel");
 
-function buscarUltimasMedidas(req, res) {
+function buscarUltimasMedidasJa(req, res) {
 
     const limite_linhas = req.params.linhas;
     const tempo = req.params.tempo;
@@ -21,6 +21,27 @@ function buscarUltimasMedidas(req, res) {
     });
 }
 
+
+function colJanela(req, res) {
+
+    var id = req.body.idMaquinaServer
+
+    console.log(`Recuperando medidas em tempo real`);
+
+    janelasModel.colJanela(id).then(function (resultado) {
+        if (resultado.length > 0) {
+            res.status(200).json(resultado);
+        } else {
+            res.status(204).send("Nenhum resultado encontrado!")
+        }
+    }).catch(function (erro) {
+        console.log(erro);
+        console.log("Houve um erro ao buscar as ultimas janelas do sistema.", erro.sqlMessage);
+        res.status(500).json(erro.sqlMessage);
+    });
+}
+
 module.exports = {
-    buscarUltimasMedidas
+    buscarUltimasMedidasJa,
+    colJanela
 }
