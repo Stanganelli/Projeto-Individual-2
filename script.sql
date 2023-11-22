@@ -82,7 +82,7 @@
     
     create table if not exists Janela(
     idJanela int primary key auto_increment,
-    Janela_atual varchar(60),
+    Janela_atual varchar(100),
     ativo tinyint,
     fkMaquina int,
     constraint fkMaquina foreign key (fkMaquina) references RoboCirurgiao (idRobo)
@@ -90,7 +90,7 @@
     
     create table if not exists Janela_fechada(
     idJanela_fechada int primary key auto_increment,
-    janela_a_fechar varchar(30),
+    janela_a_fechar varchar(100),
     sinal_terminacao tinyint,
     fkMaquina1 int,
     constraint fkMaquina1 foreign key (fkMaquina1) references RoboCirurgiao (idRobo)
@@ -125,7 +125,11 @@
 
 	-- Inserir dados na tabela categoriaCirurgia
 	INSERT INTO categoriaCirurgia (niveisPericuloridade) 
-	VALUES ('Alto');
+	VALUES ("Muito baixo"),
+    ("Baixo"),
+    ("Médio"),
+    ("Alto"),
+    ("Muito Alto");
 
 	-- Crie a tabela cirurgia
 	CREATE TABLE IF NOT EXISTS cirurgia (
@@ -187,7 +191,8 @@
 		(1, 'CPU'),
 		(2, 'Memória RAM'),
 		(3, 'Disco'),
-		(4, 'Rede');
+		(4, 'Rede'),
+        (5, 'Processos');
 
 	-- Crie a tabela componentes
 	CREATE TABLE IF NOT EXISTS componentes (
@@ -210,7 +215,10 @@
 	VALUES ('Porcentagem da CPU', "%", 1, 1),
 	("Velocidade da CPU", "GHz", 1, null),
 	("Tempo no sistema da CPU", "s", 1, 3),
-	("Processos da CPU", null, 1, null);
+	("Processos da CPU", null, 1, null),
+	("Temperatura da CPU", "°C", 1, null),
+	("Total de processos", "processos", 1, null),
+	("Total de Threads", "threads", 1, null);
 
 	-- Inserir Memória RAM
 	INSERT INTO componentes (nome, unidade, fkCategoriaComponente, fkMetrica) 
@@ -234,6 +242,9 @@
 	("Latencia de Rede", 'Latencia em MS', 4, 10),
 	('Bytes enviados','Bytes enviados da Rede', 4, null),
 	('Bytes recebidos','Bytes recebidos da Rede', 4, null);
+    
+    INSERT INTO componentes (nome, descricaoAdd, fkCategoriaComponente, fkMetrica) 
+	VALUES ('Quantidade de processos', 'Quantidades de processos em execução', 5, null);
 
 	CREATE TABLE dispositivos_usb (
 		id INT AUTO_INCREMENT PRIMARY KEY,
@@ -257,6 +268,7 @@
 		CONSTRAINT fkRoboRegistro FOREIGN KEY (fkRoboRegistro) REFERENCES RoboCirurgiao (idRobo),
 		CONSTRAINT fkComponente FOREIGN KEY (fkComponente) REFERENCES componentes (idComponentes)
 	);
+    
 
 	-- Crie a tabela Alerta
 	CREATE TABLE IF NOT EXISTS Alerta (
@@ -360,5 +372,23 @@
 	END;
 	$$ DELIMITER 
 
+	-- Criar a tabela processos
+	CREATE TABLE IF NOT EXISTS Processos (
+	    idProcesso INT PRIMARY KEY AUTO_INCREMENT,
+	    pid INT,
+	    nome VARCHAR(100),
+	    processo_status VARCHAR(20),
+	    momento_inicio DATETIME,
+	    data_hora_captura DATETIME,
+	    fkRobo INT,
+			CONSTRAINT fkRoboProcesso FOREIGN KEY (fkRobo) REFERENCES RoboCirurgiao (idRobo)
+	);
+
+	-- Select Bianca
+	SELECT registros.HorarioDado, round(registros.dado, 2) AS dado, componentes.nome, componentes.unidade 
+	FROM registros 
+	JOIN componentes 
+	ON componentes.idComponentes = registros.fkComponente;
+		
 	-- Mostrar as tabelas do banco de dados
 	SHOW TABLES;
