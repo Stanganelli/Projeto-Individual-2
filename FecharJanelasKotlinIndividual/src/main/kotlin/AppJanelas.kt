@@ -92,36 +92,15 @@ class AppJanelas {
 
 
            var qtdProcessos = Looca().grupoDeProcessos.totalProcessos
-           println(qtdProcessos)
 
            conexDb.execute(
                """
-                   INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES ($qtdProcessos, $idRobo, 19, '${LocalDateTime.now()}')
+                   INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES ($qtdProcessos, $idRobo, 20, '${LocalDateTime.now()}')
                    """
            )
 
+           println(qtdProcessos)
 
-
-         var janelaParaDeletar =   conexDb.execute(
-
-        """
-            SELECT janela_a_fechar FROM Janela_fechada WHERE fkMaquina1 = $idRobo;
-        """
-        ).toString()
-
-
-        val deletar: Int? = conexDb.queryForObject(
-            """
-        SELECT sinal_terminacao
-        FROM Janela_fechada
-        WHERE janela_a_fechar = '$janelaParaDeletar' AND fkMaquina1 = idRobo;
-    """,
-                    Int::class.java,
-        )
-
-        if (deletar != 0){
-            fecharJanela(janelaParaDeletar)
-        }
 
 
            Thread.sleep(20 * 1000)
