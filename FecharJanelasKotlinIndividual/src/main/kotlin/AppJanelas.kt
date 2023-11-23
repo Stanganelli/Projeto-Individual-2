@@ -75,15 +75,13 @@ class AppJanelas {
 
             if (windowHandle != null) {
                 User32.INSTANCE.PostMessage(windowHandle, WinUser.WM_CLOSE, null, null)
-                Thread.sleep(1000)
-                deletarSql(janelaParaDeletar)
-
+                Thread.sleep(9000)
 
             } else {
                 println("Janela não encontrada")
             }
         }
-
+        deletarSql(janelaParaDeletar)
         coletaDeDados()
     }
 
@@ -118,7 +116,8 @@ class AppJanelas {
 
                 val janelasExist = conexDb.queryForObject(
                     """
-    select count(*) as count from Janela_fechada where fkMaquina1 = $idRobo
+    select count(*) as count from Janela_fechada
+     where fkMaquina1 = $idRobo
     """,
                     Int::class.java,
                 )
@@ -150,7 +149,7 @@ class AppJanelas {
 
 
 
-                Thread.sleep(20 * 500)
+                Thread.sleep(200 * 20000)
             }
 
     }
