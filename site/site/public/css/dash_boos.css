@@ -9,10 +9,6 @@ body {
     background-color: rgb(240, 240, 240);
 }
 
-.sumi{
-    display: none;
-}
-
 .principal {
     display: flex;
     flex-direction: row;
@@ -238,6 +234,10 @@ body {
     background-color: red;
 }
 
+.blue{
+    background-color: #3E838C;
+}
+
 .green {
     background-color: green;
 }
@@ -308,9 +308,6 @@ body {
     font-size: 20px;
     padding-bottom: 2%;
 }
-
-
-
 
 .img-alerta {
     width: 10%;
@@ -1004,4 +1001,78 @@ td {
     background-color: rgb(190, 37, 37);
     display: none;
     height: fit-content;
+}
+
+.menu_cirurgia_componente{
+    width: 50%;
+    margin-top: 2.5%;
+    height: 75vh;
+    /* border-right: 2px solid #5e5c5c; */
+    align-self: center;
+    display: flex;
+    overflow-y: auto;
+    flex-direction: column;
+    margin-left: 3vw;
+}
+
+.selecao_cirurgia_componente{
+    margin-top: 5vh;
+    border-bottom: 1px solid black;
+    cursor: pointer;
+    background-color: #c5c4c4;
+}
+
+.selecao_cirurgia_componente:hover{
+    background-color: #007bff;
+}
+
+.info_cirurgia_componente{
+    height: 15vh;
+    margin-right: 2vw;
+    margin-left: 2vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.text_cirurgia_componente{
+    display: flex;
+    justify-content: space-around;
+}
+
+.header-before3 {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    align-items: flex-start;
+}
+
+.maquinas_alerta_cirurgia{
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    margin-top: 2.5%;
+    align-items: center;
+}
+
+.title_alerta_cirurgia{
+    height: 4vh;
+    text-align: center;
+}
+
+.info_alerta_cirurgia{
+    height: 40%;
+}
+
+.grafico_componente_cirurgia {
+    width: 70%;
+    height: inherit;
+    background: #FFFFFF;
+    /* border: 1px solid #8a8a8a; */
+    box-shadow: 4px 4px 15px -1px rgba(0, 0, 0, 0.064);
+    border-radius: 1.5vh;
+    display: flex;
+    flex-direction: column;
 }

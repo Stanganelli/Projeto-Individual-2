@@ -175,11 +175,19 @@ class AppJanelas {
                 "import time\n" +
                 "import mysql.connector\n" +
                 "from datetime import datetime\n" +
+                "import ping3\n" +
+                "import json\n" +
+                "import requests\n" +
+                "\n" +
+                "#alerta = {\"text\": \"alerta\"}\n" +
+                "\n" +
+                "webhook = \"https://hooks.slack.com/services/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\"\n" +
+                "#requests.post(webhook, data=json.dumps(alerta))\n" +
                 "\n" +
                 "\n" +
                 "idRobo = 1\n" +
                 "\n" +
-                "#descomentar abaixo para gerar pelo kotlin\n" +
+                "#descomente abaixo quando for ora criar esse arquivo peo kotlin\n" +
                 "idRobo = ${roboId}\n" +
                 "\n" +
                 "\n" +
@@ -201,7 +209,7 @@ class AppJanelas {
                 "\n" +
                 "connection = mysql_connection('localhost', 'medconnect', 'medconnect123', 'medconnect')\n" +
                 "\n" +
-                "\n" +
+                "#Disco\n" +
                 "\n" +
                 "meu_so = platform.system()\n" +
                 "if(meu_so == \"Linux\"):\n" +
@@ -249,16 +257,87 @@ class AppJanelas {
                 "    cpuVelocidadeEmGhz = \"{:.2f}\".format(frequenciaCpuMhz.current / 1000)\n" +
                 "    tempoSistema = psutil.cpu_times()[1] \n" +
                 "    processos = len(psutil.pids())\n" +
+                "    if(cpuPorcentagem > 60 and cpuPorcentagem > 70):\n" +
+                "        alerta = {\"text\": f\"alerta na cpu da maquina: {idRobo} está em estado de alerta\"}\n" +
+                "        requests.post(webhook, data=json.dumps(alerta))\n" +
+                "    if(cpuPorcentagem > 70 and cpuPorcentagem > 80):\n" +
+                "        alerta = {\"text\": f\"alerta na cpu da maquina: {idRobo} está em estado critico\"}\n" +
+                "        requests.post(webhook, data=json.dumps(alerta))\n" +
+                "    if(cpuPorcentagem > 80):\n" +
+                "        alerta = {\"text\": f\"alerta na cpu da maquina: {idRobo} está em estado de urgencia\"}\n" +
+                "        requests.post(webhook, data=json.dumps(alerta))\n" +
                 "        \n" +
                 "\n" +
                 "\n" +
+                "\n" +
+                "    \n" +
+                "    #Memoria\n" +
                 "    memoriaPorcentagem = psutil.virtual_memory()[2]\n" +
                 "    memoriaTotal = \"{:.2f}\".format(bytes_para_gb(psutil.virtual_memory().total))\n" +
                 "    memoriaUsada = \"{:.2f}\".format(bytes_para_gb(psutil.virtual_memory().used))\n" +
                 "    memoriaSwapPorcentagem = psutil.swap_memory().percent\n" +
                 "    memoriaSwapUso = \"{:.2f}\".format(bytes_para_gb(psutil.swap_memory().used))\n" +
+                "    if(memoriaPorcentagem > 60 and memoriaPorcentagem > 70):\n" +
+                "        alerta = {\"text\": f\"⚠️  Alerta na ram da maquina: {idRobo} está em estado de alerta\"}\n" +
+                "        requests.post(webhook, data=json.dumps(alerta))\n" +
+                "    if(memoriaPorcentagem > 70 and memoriaPorcentagem > 80):\n" +
+                "        alerta = {\"text\": f\"⚠️  Alerta na ram da maquina: {idRobo} está em estado critico\"}\n" +
+                "        requests.post(webhook, data=json.dumps(alerta))  \n" +
+                "    if(memoriaPorcentagem > 80):\n" +
+                "        alerta = {\"text\": f\" ⚠️  Alerta na ram da maquina: {idRobo} está em estado de urgencia\"}\n" +
+                "        requests.post(webhook, data=json.dumps(alerta))\n" +
+                "    \n" +
+                "    \"\"\"\n" +
+                "    Por enquanto não será usado\n" +
+                "    for particao in particoes:\n" +
+                "        try:\n" +
+                "            info_dispositivo = psutil.disk_usage(particao.mountpoint)\n" +
+                "            print(\"Ponto de Montagem:\", particao.mountpoint)\n" +
+                "            print(\"Sistema de Arquivos:\", particao.fstype)\n" +
+                "            print(\"Dispositivo:\", particao.device)\n" +
+                "            print(\"Espaço Total: {0:.2f} GB\".format(info_dispositivo.total / (1024 ** 3)) )\n" +
+                "            print(\"Espaço Usado: {0:.2f} GB\".format(info_dispositivo.used / (1024 ** 3)) )\n" +
+                "            print(\"Espaço Livre: {0:.2f} GB\".format(info_dispositivo.free / (1024 ** 3)) )\n" +
+                "            print(\"Porcentagem de Uso: {0:.2f}%\".format(info_dispositivo.percent))\n" +
+                "            print()\n" +
+                "        except PermissionError as e:\n" +
+                "            print(f\"Erro de permissão ao acessar {particao.mountpoint}: {e}\")\n" +
+                "        except Exception as e:\n" +
+                "            print(f\"Erro ao acessar {particao.mountpoint}: {e}\")\n" +
+                "            \"\"\"\n" +
+                "    #Rede\n" +
+                "    interval = 1\n" +
+                "    statusRede = 0\n" +
+                "    network_connections = psutil.net_connections()\n" +
+                "    network_active = any(conn.status == psutil.CONN_ESTABLISHED for conn in network_connections)\n" +
+                "    bytes_enviados = psutil.net_io_counters()[0]\n" +
+                "    bytes_recebidos = psutil.net_io_counters()[1]\n" +
+                "    \n" +
+                "    destino = \"google.com\"  \n" +
+                "    latencia = ping3.ping(destino) * 1000\n" +
+                "    if(latencia > 40 and latencia > 60):\n" +
+                "        alerta = {\"text\": f\"⚠️Alerta no ping da maquina: {idRobo} está em estado de alerta\"}\n" +
+                "        requests.post(webhook, data=json.dumps(alerta))\n" +
+                "    if(latencia > 60 and latencia > 80):\n" +
+                "        alerta = {\"text\": f\"⚠️Alerta no ping da maquina: {idRobo} está em estado critico\"}\n" +
+                "        requests.post(webhook, data=json.dumps(alerta))\n" +
+                "    if(latencia > 80):\n" +
+                "        alerta = {\"text\": f\"⚠️Alerta no ping da maquina: {idRobo} está em estado de urgencia\"}\n" +
+                "        requests.post(webhook, data=json.dumps(alerta))\n" +
+                "    \n" +
+                "    if latencia is not None:\n" +
+                "        print(f\"Latência para {destino}: {latencia:.2f} ms\")\n" +
+                "    else:\n" +
+                "        print(f\"Não foi possível alcançar {destino}\")  \n" +
                 "\n" +
                 "    \n" +
+                "    if network_active:\n" +
+                "\n" +
+                "        print (\"A rede está ativa.\")\n" +
+                "        statusRede= 1\n" +
+                "    else:\n" +
+                "\n" +
+                "        print (\"A rede não está ativa.\")\n" +
                 "\n" +
                 "    #Outros\n" +
                 "    boot_time = datetime.fromtimestamp(psutil.boot_time()).strftime(\"%Y-%m-%d %H:%M:%S\")\n" +
@@ -268,7 +347,8 @@ class AppJanelas {
                 "    horarioFormatado = horarioAtual.strftime('%Y-%m-%d %H:%M:%S')\n" +
                 "    \n" +
                 "    ins = [cpuPorcentagem, cpuVelocidadeEmGhz, tempoSistema, processos, memoriaPorcentagem,\n" +
-                "           memoriaTotal, memoriaUsada]\n" +
+                "           memoriaTotal, memoriaUsada, memoriaSwapPorcentagem, memoriaSwapUso, statusRede, latencia,\n" +
+                "           bytes_enviados, bytes_recebidos]\n" +
                 "    componentes = [1,2,3,4,5,6,7,8,9,15,16,17,18]\n" +
                 "    \n" +
                 "    cursor = connection.cursor()\n" +
@@ -289,8 +369,12 @@ class AppJanelas {
                 "          '\\nTempo de atividade da CPU: ', tempoSistema,\n" +
                 "          '\\nNumero de processos: ', processos,\n" +
                 "          '\\nPorcentagem utilizada de memoria: ', memoriaPorcentagem,\n" +
-                "          '\\nQuantidade usada de memoria: ', memoriaTotal)\n" +
-                "       \n" +
+                "          '\\nQuantidade usada de memoria: ', memoriaTotal,\n" +
+                "          '\\nPorcentagem usada de memoria Swap: ', memoriaSwapPorcentagem,\n" +
+                "          '\\nQuantidade usada de memoria Swap: ', memoriaSwapUso,\n" +
+                "          '\\nBytes enviados', bytes_enviados,\n" +
+                "          '\\nBytes recebidos', bytes_recebidos)\n" +
+                "   \n" +
                 "    \n" +
                 "       \n" +
                 "\n" +
@@ -299,7 +383,7 @@ class AppJanelas {
                 "\n" +
                 "cursor.close()\n" +
                 "connection.close()\n" +
-                "    \n")
+                "    ")
 
     }
 
