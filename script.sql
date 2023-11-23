@@ -82,7 +82,7 @@
     
     create table if not exists Janela(
     idJanela int primary key auto_increment,
-    Janela_atual varchar(100),
+    Janela_atual varchar(200),
     ativo tinyint,
     fkMaquina int,
     constraint fkMaquina foreign key (fkMaquina) references RoboCirurgiao (idRobo)
@@ -90,12 +90,14 @@
     
     create table if not exists Janela_fechada(
     idJanela_fechada int primary key auto_increment,
-    janela_a_fechar varchar(100),
+    janela_a_fechar varchar(200),
     sinal_terminacao tinyint,
     fkMaquina1 int,
     constraint fkMaquina1 foreign key (fkMaquina1) references RoboCirurgiao (idRobo)
     );
-
+    
+    
+     
 
 
 	-- Inserir dados na tabela RoboCirurgiao
@@ -392,3 +394,8 @@
 		
 	-- Mostrar as tabelas do banco de dados
 	SHOW TABLES;
+    
+    
+    
+    
+
