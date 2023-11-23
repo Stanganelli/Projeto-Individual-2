@@ -18,6 +18,7 @@ class AppJanelas {
     var conexDb: JdbcTemplate
     var id = Looca().processador.id
     var cli = Scanner(System.`in`)
+    val os = Looca().sistema.sistemaOperacional
 
 
     init {
@@ -56,17 +57,24 @@ class AppJanelas {
 
 
     fun fecharJanela(janelaParaDeletar: String) {
-        val windowHandle = User32.INSTANCE.FindWindow(null, janelaParaDeletar)
 
-        if (windowHandle != null) {
-            User32.INSTANCE.PostMessage(windowHandle, WinUser.WM_CLOSE, null, null)
-            // Aguarde 1 segundo (1000 milissegundos) antes de continuar
-            Thread.sleep(1000)
-        } else {
-            println("Janela não encontrada")
+        if (os == "Wimdows") {
+            val windowHandle = User32.INSTANCE.FindWindow(null, janelaParaDeletar)
+
+            if (windowHandle != null) {
+                User32.INSTANCE.PostMessage(windowHandle, WinUser.WM_CLOSE, null, null)
+                // Aguarde 1 segundo (1000 milissegundos) antes de continuar
+                Thread.sleep(1000)
+                coletaDeDados()
+            } else {
+                println("Janela não encontrada")
+                coletaDeDados()
+            }
+        }else{
+        coletaDeDados()
         }
-    }
 
+    }
 
 
     fun coletaDeDados() {
@@ -103,7 +111,9 @@ class AppJanelas {
 
 
 
-           Thread.sleep(20 * 1000)
+
+
+           Thread.sleep(20 * 500)
 
 
        }

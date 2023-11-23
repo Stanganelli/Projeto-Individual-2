@@ -173,6 +173,7 @@
                 </div>
                 <h4>Janelas:<span id="janelas"></span></h4>
                 <button onclick="jal()">oioi</button>
+                <button onclick="fecharJa()">fechar janela exibida</button>
             </div>
         </div>
     </div>
@@ -190,7 +191,9 @@ var menu = 0;
 function jal(){
     colJanela()
 }
-
+function fecharJa(){
+    fecharJanela()
+}
 
 function mostrarMenu() {
     var drop_menu = document.getElementById('drop_menu'); 

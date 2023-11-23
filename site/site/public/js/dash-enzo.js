@@ -2,8 +2,44 @@ var contadorRegistro = 0;
 var contadorDadoEstavel = 0;
 var usoDisco = 0;
 var totalDisco = 0;
+var janelaAtualGlobal = ""
 
 
+function fecharJanela(){ 
+    fkRobo = document.getElementById("maquinas-ativas").value;
+fetch("/janelas/fechar", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        // crie um atributo que recebe o valor recuperado aqui
+        // Agora vá para o arquivo routes/usuario.js
+        janelaServer: janelaAtualGlobal,
+        idMaquinaServer: fkRobo
+
+    })
+}).then(function (resposta) {
+
+    console.log("resposta: ", resposta);
+
+    if (resposta.ok) {
+
+        setTimeout(() => {
+            window.location.reload();
+        }, "2000")
+
+        // limparFormulario();
+        // finalizarAguardar();
+    } else {
+        throw ("Houve um erro ao tentar cadastrar o ganhador");
+    }
+}).catch(function (resposta) {
+    console.log(`#ERRO: ${resposta}`);
+return false;
+// finalizarAguardar();
+});
+}
 
 function colJanela(fkRobo) {
     fkRobo = document.getElementById("maquinas-ativas").value;
@@ -22,6 +58,7 @@ function colJanela(fkRobo) {
             response.json().then(function (resposta) {
                 const janelaAtual = resposta[0].Janela_atual;
                 janelas.innerHTML = janelaAtual;
+                janelaAtualGlobal = janelaAtual
             });
         } else {
             console.error('Nenhum dado encontrado ou erro na API');
