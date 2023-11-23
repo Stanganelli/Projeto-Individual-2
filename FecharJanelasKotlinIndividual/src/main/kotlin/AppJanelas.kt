@@ -53,70 +53,106 @@ class AppJanelas {
         }
 
     }
-
+    fun deletarSql(janelaParaDeletar: String) {
+        val sql = """
+        DELETE FROM Janela_fechada 
+        WHERE janela_a_fechar = '${janelaParaDeletar}'
+    """
+        try {
+            val rowsAffected = conexDb.update(sql)
+            println("$rowsAffected registros foram removidos da tabela 'Janela_fechada' onde janela_a_fechar = '${janelaParaDeletar}'.")
+        } catch (e: Exception) {
+            println("Ocorreu um erro ao tentar deletar registros: ${e.message}")
+        }
+    }
 
 
     fun fecharJanela(janelaParaDeletar: String) {
-
-        if (os == "Wimdows") {
+        if (os == "Windows") {
+            println("Opa, estou na deleção")
+            println(janelaParaDeletar)
             val windowHandle = User32.INSTANCE.FindWindow(null, janelaParaDeletar)
 
             if (windowHandle != null) {
                 User32.INSTANCE.PostMessage(windowHandle, WinUser.WM_CLOSE, null, null)
-                // Aguarde 1 segundo (1000 milissegundos) antes de continuar
                 Thread.sleep(1000)
-                coletaDeDados()
+                deletarSql(janelaParaDeletar)
+
+
             } else {
                 println("Janela não encontrada")
-                coletaDeDados()
             }
-        }else{
-        coletaDeDados()
         }
 
+        coletaDeDados()
     }
 
 
     fun coletaDeDados() {
-        println("coletando dados")
+        println("Coletando dados")
+
+            val idRobo = conexDb.queryForObject(
+                "SELECT idRobo FROM RoboCirurgiao WHERE idProcess = ?",
+                Int::class.java,
+                id
+            ) ?: 0
+
+            while (true) {
+                val janelaAtual = Looca().grupoDeJanelas.janelas.getOrNull(2)?.titulo?.toString()
+                janelaAtual?.let {
+                    conexDb.update(
+                        "INSERT INTO Janela (Janela_atual, ativo, fkMaquina) VALUES (?, ?, ?)",
+                        it, 1, idRobo
+                    )
+                }
+                println(janelaAtual)
+
+                val qtdProcessos = Looca().grupoDeProcessos.totalProcessos
+                conexDb.update(
+                    "INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (?, ?, ?, ?)",
+                    qtdProcessos, idRobo, 20, LocalDateTime.now()
+                )
+                println(qtdProcessos)
 
 
-        val idRobo = conexDb.queryForObject(
-            """
-    select idRobo from RoboCirurgiao where idProcess = '$id'
+
+                val janelasExist = conexDb.queryForObject(
+                    """
+    select count(*) as count from Janela_fechada where fkMaquina1 = $idRobo
     """,
-            Int::class.java,
-        )
-
-       while (true) {
-            var janelaAtual = Looca().grupoDeJanelas.janelas[2].titulo.toString()
-            println(janelaAtual)
-        conexDb.execute(
-            """
-            INSERT INTO Janela (Janela_atual, ativo, fkMaquina)
-            VALUES ('${janelaAtual}', 1, $idRobo);
-            """
-        )
+                    Int::class.java,
+                )
 
 
-           var qtdProcessos = Looca().grupoDeProcessos.totalProcessos
+                if(janelasExist == 0){
+                    coletaDeDados()
 
-           conexDb.execute(
-               """
-                   INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES ($qtdProcessos, $idRobo, 20, '${LocalDateTime.now()}')
-                   """
-           )
+                }
+                else{ var janelaRecente = conexDb.queryForObject(
+                    "SELECT janela_a_fechar FROM Janela_fechada WHERE fkMaquina1 = ? ORDER BY idJanela_fechada DESC LIMIT 1",
+                    String::class.java,
+                    idRobo
+                )
+                    println(janelaRecente)
 
-           println(qtdProcessos)
+                    janelaRecente?.let {
+                        var sinal = conexDb.queryForObject(
+                            "SELECT sinal_terminacao FROM Janela_fechada WHERE janela_a_fechar = ?",
+                            Int::class.java,
+                            it
+                        )
+                        sinal?.let {
+                            if (it == 1) {
+                                fecharJanela(janelaRecente)
+                            }
+                        }
+                    }}
 
 
 
+                Thread.sleep(20 * 500)
+            }
 
-
-           Thread.sleep(20 * 500)
-
-
-       }
     }
 
 
