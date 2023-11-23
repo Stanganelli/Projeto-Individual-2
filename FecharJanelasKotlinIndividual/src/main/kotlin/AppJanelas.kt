@@ -6,6 +6,7 @@ import javax.swing.JOptionPane
 import java.io.File
 import java.util.Scanner
 //novos iimports
+
 import com.sun.jna.Native
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
@@ -89,68 +90,68 @@ class AppJanelas {
     fun coletaDeDados() {
         println("Coletando dados")
 
-            val idRobo = conexDb.queryForObject(
-                "SELECT idRobo FROM RoboCirurgiao WHERE idProcess = ?",
-                Int::class.java,
-                id
-            ) ?: 0
+        val idRobo = conexDb.queryForObject(
+            "SELECT idRobo FROM RoboCirurgiao WHERE idProcess = ?",
+            Int::class.java,
+            id
+        ) ?: 0
 
-            while (true) {
-                val janelaAtual = Looca().grupoDeJanelas.janelas.getOrNull(2)?.titulo?.toString()
-                janelaAtual?.let {
-                    conexDb.update(
-                        "INSERT INTO Janela (Janela_atual, ativo, fkMaquina) VALUES (?, ?, ?)",
-                        it, 1, idRobo
-                    )
-                }
-                println(janelaAtual)
-
-                val qtdProcessos = Looca().grupoDeProcessos.totalProcessos
+        while (true) {
+            val janelaAtual = Looca().grupoDeJanelas.janelas.getOrNull(2)?.titulo?.toString()
+            janelaAtual?.let {
                 conexDb.update(
-                    "INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (?, ?, ?, ?)",
-                    qtdProcessos, idRobo, 20, LocalDateTime.now()
+                    "INSERT INTO Janela (Janela_atual, ativo, fkMaquina) VALUES (?, ?, ?)",
+                    it, 1, idRobo
                 )
-                println(qtdProcessos)
+            }
+            println(janelaAtual)
+
+            val qtdProcessos = Looca().grupoDeProcessos.totalProcessos
+            conexDb.update(
+                "INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (?, ?, ?, ?)",
+                qtdProcessos, idRobo, 20, LocalDateTime.now()
+            )
+            println(qtdProcessos)
 
 
 
-                val janelasExist = conexDb.queryForObject(
-                    """
+            val janelasExist = conexDb.queryForObject(
+                """
     select count(*) as count from Janela_fechada
      where fkMaquina1 = $idRobo
     """,
-                    Int::class.java,
-                )
+                Int::class.java,
+            )
 
 
-                if(janelasExist == 0){
-                    coletaDeDados()
+            if(janelasExist == 0){
+                coletaDeDados()
 
-                }
-                else{ var janelaRecente = conexDb.queryForObject(
-                    "SELECT janela_a_fechar FROM Janela_fechada WHERE fkMaquina1 = ? ORDER BY idJanela_fechada DESC LIMIT 1",
-                    String::class.java,
-                    idRobo
-                )
-                    println(janelaRecente)
-
-                    janelaRecente?.let {
-                        var sinal = conexDb.queryForObject(
-                            "SELECT sinal_terminacao FROM Janela_fechada WHERE janela_a_fechar = ?",
-                            Int::class.java,
-                            it
-                        )
-                        sinal?.let {
-                            if (it == 1) {
-                                fecharJanela(janelaRecente)
-                            }
-                        }
-                    }}
-
-
-
-                Thread.sleep(200 * 20000)
             }
+            else{ var janelaRecente = conexDb.queryForObject(
+                "SELECT janela_a_fechar FROM Janela_fechada WHERE fkMaquina1 = ? ORDER BY idJanela_fechada DESC LIMIT 1",
+                String::class.java,
+                idRobo
+            )
+                println(janelaRecente)
+
+                janelaRecente?.let {
+                    var sinal = conexDb.queryForObject(
+                        "SELECT sinal_terminacao FROM Janela_fechada WHERE janela_a_fechar = ?",
+                        Int::class.java,
+                        it
+                    )
+                    sinal?.let {
+                        if (it == 1) {
+                            fecharJanela(janelaRecente)
+                        }
+                    }
+                }}
+
+
+
+            Thread.sleep(200 * 20000)
+        }
 
     }
 
@@ -355,8 +356,8 @@ VALUES ('Modelo A', '${Looca().processador.fabricante}', 1, '$id', $fkHospital);
 }
 
 
-    fun main() {
+fun main() {
 
-        val janel = AppJanelas()
-        janel.verificacao()
-    }
+    val janel = AppJanelas()
+    janel.verificacao()
+}
