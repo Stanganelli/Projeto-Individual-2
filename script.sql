@@ -95,9 +95,7 @@
     fkMaquina1 int,
     constraint fkMaquina1 foreign key (fkMaquina1) references RoboCirurgiao (idRobo)
     );
-    
-    
-     
+
 
 
 	-- Inserir dados na tabela RoboCirurgiao
@@ -394,8 +392,3 @@
 		
 	-- Mostrar as tabelas do banco de dados
 	SHOW TABLES;
-    
-    
-    
-    
-
