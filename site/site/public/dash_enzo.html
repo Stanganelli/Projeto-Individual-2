@@ -160,6 +160,19 @@
                     </div>
                 </div>
 
+                <div class="box-ram">
+                    <div class="grafico-geral">
+                        <div class="label-grafico">
+                            Quantidade de Processos na Máquina
+                        </div>
+                        <div id="grafico2" class="display-none">
+                            <div class="graph">
+                                <canvas id="myChartCanvas3"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
         
                     <!-- <div class="box-usb">
                         <div class="label-grafico">USB's Desconectados</div>
@@ -251,30 +264,30 @@ async function buscarMaquinas(idHospital) {
             "Content-Type": "application/json"
         }
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao fazer a solicitação GET');
-            }
-            return response.json();
-        }).then(data => {
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao fazer a solicitação GET');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
 
-            console.log(data)
+        maquinas = data;
 
-            maquinas = data;
+        var selectMaquinasAtivas = document.getElementById("maquinas-ativas");
 
-            var selectMaquinasAtivas = document.getElementById("maquinas-ativas");
+        // Itera sobre o array de empresas e cria as opções do select
+        for (let i = 0; i < maquinas.length; i++) {
+            const maquina = maquinas[i];
 
-            // Itera sobre o array de empresas e cria as opções do select
-            for (let i = 0; i < maquinas.length; i++) {
-                const maquina = maquinas[i];
-
-                const optionElement = document.createElement('option');
-                optionElement.value = maquina.idRobo;
-                optionElement.text = "Robo " + (i+1);
-                selectMaquinasAtivas.appendChild(optionElement);
-                optionElement.setAttribute('data-info', maquina.idProcess);
-            }
-            obterDadosGrafico()
-        });
+            const optionElement = document.createElement('option');
+            optionElement.value = maquina.idRobo;
+            optionElement.text = "Robo " + (i + 1);
+            selectMaquinasAtivas.appendChild(optionElement);
+            optionElement.setAttribute('data-info', maquina.idProcess);
+        }
+        obterDadosGrafico();
+    });
 }
 </script>

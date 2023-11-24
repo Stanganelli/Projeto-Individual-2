@@ -68,9 +68,6 @@ function colJanela(fkRobo) {
 }
 
 
-
-
-
 function obterDadosGrafico() {
     fkRobo = document.getElementById("maquinas-ativas").value;
     tempoHistorico = document.getElementById("tempo-historico").value;
@@ -373,6 +370,66 @@ function plotarGrafico(resposta, fkRobo) {
         configMemoria
     );
 
+    let labelProcesso = []; // NOME DOS DO GRÁFICO, FICA VAZIO POIS ELE VAI RECEBER OS HORARIOS
+
+    // Criando estrutura para plotar gráfico - dados
+    let dadosProcesso = {
+        labels: labelProcesso,
+        datasets: [
+            {
+                label: "Quantidade de Processos",
+                data: [], // FICA VAZIO POIS VAI SER PREENCHIDO PELOS DADOS RECEBIDOS
+                fill: true,
+                borderColor: "rgb(75, 192, 192)",
+                backgroundColor: "rgb(75, 192, 192, 0.400)",
+                tension: 0.1,
+            },
+        ],
+    };
+
+    console.log("----------------------------------------------");
+    console.log(
+        'Estes dados foram recebidos pela funcao "obterDadosGrafico" e passados para "plotarGrafico":'
+    );
+    resposta.forEach((registro) => {
+        if (registro.nomeComponente == "Processos da CPU") {
+            labelProcesso.push(registro.HorarioFormatado);
+            dadosProcesso.datasets[0].data.push(registro.dado);
+        }
+    });
+    // Inserindo valores recebidos em estrutura para plotar o gráfico
+    // for (i = 0; i < resposta.length; i++) {
+    //     var registro = resposta[i];
+    //     labels.push(registro.HorarioDado);
+    //     dados.datasets[0].data.push(registro.dado);
+    //     // dados.datasets[1].data.push(registro.temperatura);
+    // }
+
+    console.log("----------------------------------------------");
+    console.log("O gráfico será plotado com os respectivos valores:");
+    console.log("Labels:");
+    console.log(labelProcesso);
+    console.log("Dados:");
+    console.log(dadosProcesso);
+    console.log("----------------------------------------------");
+
+    // Criando estrutura para plotar gráfico - config
+    const configProcesso = {
+        type: "line",
+        data: dadosProcesso,
+    };
+
+    var grafico3 = document.getElementById(`myChartCanvas3`);
+
+    if (Chart.getChart(grafico3)) {
+        Chart.getChart(grafico3).destroy();
+    }
+    // Adicionando gráfico criado em div na tela
+    let myChart3 = new Chart(
+        document.getElementById(`myChartCanvas3`),
+        configProcesso
+    );
+
 
     setTimeout(
         () =>
@@ -380,8 +437,10 @@ function plotarGrafico(resposta, fkRobo) {
                 fkRobo,
                 dadosCpu,
                 dadosMemoria,
+                dadosProcesso,
                 myChart,
-                myChart2
+                myChart2,
+                // myChart3 descomentar aqui e configurar a att
             ),
         10000
     );

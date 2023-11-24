@@ -225,7 +225,7 @@ class AppJanelas {
                 "discoTempoEscrita = milissegundos_para_segundos(psutil.disk_io_counters(perdisk=False, nowrap=True)[5])\n" +
                 "\n" +
                 "ins = [discoPorcentagem, discoTotal, discoUsado, discoTempoLeitura, discoTempoEscrita]\n" +
-                "componentes = [10,11,12,13,14]\n" +
+                "componentes = [13,14,15,16,17]\n" +
                 "\n" +
                 "horarioAtual = datetime.now()\n" +
                 "horarioFormatado = horarioAtual.strftime('%Y-%m-%d %H:%M:%S')\n" +
@@ -349,7 +349,7 @@ class AppJanelas {
                 "    ins = [cpuPorcentagem, cpuVelocidadeEmGhz, tempoSistema, processos, memoriaPorcentagem,\n" +
                 "           memoriaTotal, memoriaUsada, memoriaSwapPorcentagem, memoriaSwapUso, statusRede, latencia,\n" +
                 "           bytes_enviados, bytes_recebidos]\n" +
-                "    componentes = [1,2,3,4,5,6,7,8,9,15,16,17,18]\n" +
+                "    componentes = [1,2,3,4,8,9,10,11,12,18,19,20,21]\n" +
                 "    \n" +
                 "    cursor = connection.cursor()\n" +
                 "    \n" +
