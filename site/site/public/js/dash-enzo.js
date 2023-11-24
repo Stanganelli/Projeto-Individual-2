@@ -68,6 +68,9 @@ function colJanela(fkRobo) {
 }
 
 
+
+
+
 function obterDadosGrafico() {
     fkRobo = document.getElementById("maquinas-ativas").value;
     tempoHistorico = document.getElementById("tempo-historico").value;
@@ -370,88 +373,6 @@ function plotarGrafico(resposta, fkRobo) {
         configMemoria
     );
 
-    // ----------------------------------------------------------------------------------
-    // CRIANDO GRÁFICO DA REDE
-    let labelRede = [];
-
-    // Criando estrutura para plotar gráfico - dados
-    let dadosRede = {
-        labels: labelRede,
-        datasets: [
-            {
-                label: "Latencia em milissegundos (ms)",
-                data: [],
-                fill: true,
-                borderColor: "rgb(75, 192, 192)",
-                backgroundColor: "rgb(75, 192, 192, 0.400)",
-                tension: 0.1,
-            },
-        ],
-    };
-
-    console.log("----------------------------------------------");
-    console.log(
-        'Estes dados foram recebidos pela funcao "obterDadosGrafico" e passados para "plotarGrafico":'
-    );
-    let contadorRegistro = 0;
-    let contadorDadoEstavel = 0;
-
-    resposta.forEach((registro) => {
-        if (registro.nomeComponente == "Latencia de Rede") {
-            labelRede.push(registro.HorarioFormatado);
-            dadosRede.datasets[0].data.push(registro.dado);
-            contadorRegistro++;
-
-            if (registro.dado > 80) {
-                rede_estado_geral.innerHTML = "Crítico";
-                rede_estado_geral.style.color = "red";
-            } else if (registro.dado > 50) {
-                rede_estado_geral.innerHTML = "Instável";
-                rede_estado_geral.style.color = "orange";
-            } else {
-                contadorDadoEstavel++;
-            }
-
-            if (contadorDadoEstavel >= 7) {
-                rede_estado_geral.innerHTML = "Estável";
-                rede_estado_geral.style.color = "green";
-                contadorDadoEstavel = 0; // Reinicialize o contador de dados estáveis
-            }
-        }
-    });
-
-    // Inserindo valores recebidos em estrutura para plotar o gráfico
-    // for (i = 0; i < resposta.length; i++) {
-    //     var registro = resposta[i];
-    //     labels.push(registro.HorarioDado);
-    //     dados.datasets[0].data.push(registro.dado);
-    //     // dados.datasets[1].data.push(registro.temperatura);
-    // }
-
-    console.log("----------------------------------------------");
-    console.log("O gráfico será plotado com os respectivos valores:");
-    console.log("Labels:");
-    console.log(labelMemoria);
-    console.log("Dados:");
-    console.log(dadosMemoria);
-    console.log("----------------------------------------------");
-
-    // Criando estrutura para plotar gráfico - config
-    const configRede = {
-        type: "line",
-        data: dadosRede,
-    };
-    var grafico4 = document.getElementById(`myChartCanvas4`);
-
-    if (Chart.getChart(grafico4)) {
-        Chart.getChart(grafico4).destroy();
-    }
-
-    // Adicionando gráfico criado em div na tela
-    let myChart4 = new Chart(
-        document.getElementById(`myChartCanvas4`),
-        configRede
-    );
 
     setTimeout(
         () =>
@@ -459,80 +380,14 @@ function plotarGrafico(resposta, fkRobo) {
                 fkRobo,
                 dadosCpu,
                 dadosMemoria,
-                dadosRede,
                 myChart,
-                myChart2,
-                myChart4
+                myChart2
             ),
         10000
     );
 }
 
-function plotarGraficoDisco(usoDisco, discoTotal){
-    let labelDisco = [];
 
-    // Criando estrutura para plotar gráfico - dados
-    let dadosDisco = {
-        labels: [
-            'Disco Utilizado',
-            'Disco Livre'
-          ],
-        datasets: [
-            {
-                label: "",
-                data: [],
-                fill: true,
-                backgroundColor: [
-                    '#3E838C',
-                    '#78bec8'
-                  ],
-                tension: 0.1,
-            },
-        ],
-    };
-
-    console.log("----------------------------------------------");
-    console.log(
-        'Estes dados foram recebidos pela funcao "obterDadosGrafico" e passados para "plotarGrafico":'
-    );
-    
-    dadosDisco.datasets[0].data.push(usoDisco);
-    dadosDisco.datasets[0].data.push(discoTotal - usoDisco);
-    
-    // Inserindo valores recebidos em estrutura para plotar o gráfico
-    // for (i = 0; i < resposta.length; i++) {
-    //     var registro = resposta[i];
-    //     labels.push(registro.HorarioDado);
-    //     dados.datasets[0].data.push(registro.dado);
-    //     // dados.datasets[1].data.push(registro.temperatura);
-    // }
-
-    console.log("----------------------------------------------");
-    console.log("O gráfico será plotado com os respectivos valores:");
-    console.log("Labels:");
-    console.log(labelDisco);
-    console.log("Dados:");
-    console.log(dadosDisco);
-    console.log("----------------------------------------------");
-
-    // Criando estrutura para plotar gráfico - config
-    const configDisco = {
-        type: "doughnut",
-        data: dadosDisco,
-    };
-
-    var grafico3 = document.getElementById(`myChartCanvas3`);
-
-    if (Chart.getChart(grafico3)) {
-        Chart.getChart(grafico3).destroy();
-    }
-
-    // Adicionando gráfico criado em div na tela
-    let myChart3 = new Chart(
-        document.getElementById(`myChartCanvas3`),
-        configDisco
-    );
-}
 
 // Esta função *atualizarGrafico* atualiza o gráfico que foi renderizado na página,
 // buscando a última medida inserida em tabela contendo as capturas,
@@ -543,10 +398,8 @@ function atualizarGrafico(
     fkRobo,
     dadosCpu,
     dadosMemoria,
-    dadosRede,
     myChart,
-    myChart2,
-    myChart4
+    myChart2
 ) {
 
     if(tempoHistorico == "atual"){
@@ -595,25 +448,7 @@ function atualizarGrafico(
     
                                     myChart2.update();
                                 }
-                            } else if (registro.nomeComponente == "Latencia de Rede") {
-                                if (
-                                    registro.HorarioFormatado ==
-                                    dadosRede.labels[dadosRede.labels.length - 1]
-                                ) {
-                                    console.log(
-                                        "Como não há dados novos para captura de rede, o gráfico não atualizará."
-                                    );
-                                } else {
-                                    // tirando e colocando valores no gráfico
-                                    dadosRede.labels.shift(); // apagar o primeiro
-                                    dadosRede.labels.push(registro.HorarioFormatado); // incluir um novo momento
-    
-                                    dadosRede.datasets[0].data.shift(); // apagar o primeiro de umidade
-                                    dadosRede.datasets[0].data.push(registro.dado); // incluir uma nova medida de umidade
-    
-                                    myChart4.update();
-                                }
-                            }
+                            } 
                         });
     
                         // Altere aqui o valor em ms se quiser que o gráfico atualize mais rápido ou mais devagar
@@ -623,10 +458,9 @@ function atualizarGrafico(
                                     fkRobo,
                                     dadosCpu,
                                     dadosMemoria,
-                                    dadosRede,
+                
                                     myChart,
-                                    myChart2,
-                                    myChart4
+                                    myChart2
                                 ),
                             10000
                         );
@@ -640,7 +474,7 @@ function atualizarGrafico(
                                 fkRobo,
                                 dadosCpu,
                                 dadosMemoria,
-                                dadosRede,
+            
                                 myChart,
                                 myChart2,
                                 myChart4
