@@ -17,6 +17,7 @@ import java.time.LocalDateTime
 
 class AppJanelas {
     var conexDb: JdbcTemplate
+    var conexDbServer: JdbcTemplate
     var id = Looca().processador.id
     var cli = Scanner(System.`in`)
     val os = Looca().sistema.sistemaOperacional
@@ -31,6 +32,13 @@ class AppJanelas {
         dataSource.password = "medconnect123"
         dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
         conexDb = JdbcTemplate(dataSource)
+
+        val dataSoruceServer = BasicDataSource()
+        dataSoruceServer.url = "jdbc:sqlserver://52.7.105.138:1433;databaseName=medconnect;encrypt=false";
+        dataSoruceServer.driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+        dataSoruceServer.username = "sa"
+        dataSoruceServer.password = "medconnect123"
+        conexDbServer = JdbcTemplate(dataSoruceServer)
     }
 
 
@@ -40,9 +48,9 @@ class AppJanelas {
 
 
 
-        val qtdIds = conexDb.queryForObject(
+        val qtdIds = conexDbServer.queryForObject(
             """
-    select count(*) as count from RoboCirurgiao where idProcess = '$id'
+    SELECT COUNT(*) AS count FROM RoboCirurgiao WHERE idProcess = '$id'
     """,
             Int::class.java,
         )
@@ -90,7 +98,7 @@ class AppJanelas {
     fun coletaDeDados() {
         println("Coletando dados")
 
-        val idRobo = conexDb.queryForObject(
+        val idRobo = conexDbServer.queryForObject(
             "SELECT idRobo FROM RoboCirurgiao WHERE idProcess = ?",
             Int::class.java,
             id
@@ -99,7 +107,7 @@ class AppJanelas {
         while (true) {
             val janelaAtual = Looca().grupoDeJanelas.janelas.getOrNull(2)?.titulo?.toString()
             janelaAtual?.let {
-                conexDb.update(
+                conexDbServer.update(
                     "INSERT INTO Janela (Janela_atual, ativo, fkMaquina) VALUES (?, ?, ?)",
                     it, 1, idRobo
                 )
@@ -107,7 +115,7 @@ class AppJanelas {
             println(janelaAtual)
 
             val qtdProcessos = Looca().grupoDeProcessos.totalProcessos
-            conexDb.update(
+            conexDbServer.update(
                 "INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (?, ?, ?, ?)",
                 qtdProcessos, idRobo, 20, LocalDateTime.now()
             )
@@ -115,7 +123,7 @@ class AppJanelas {
 
 
 
-            val janelasExist = conexDb.queryForObject(
+            val janelasExist = conexDbServer.queryForObject(
                 """
     select count(*) as count from Janela_fechada
      where fkMaquina1 = $idRobo
@@ -128,7 +136,7 @@ class AppJanelas {
                 coletaDeDados()
 
             }
-            else{ var janelaRecente = conexDb.queryForObject(
+            else{ var janelaRecente = conexDbServer.queryForObject(
                 "SELECT janela_a_fechar FROM Janela_fechada WHERE fkMaquina1 = ? ORDER BY idJanela_fechada DESC LIMIT 1",
                 String::class.java,
                 idRobo
@@ -136,7 +144,7 @@ class AppJanelas {
                 println(janelaRecente)
 
                 janelaRecente?.let {
-                    var sinal = conexDb.queryForObject(
+                    var sinal = conexDbServer.queryForObject(
                         "SELECT sinal_terminacao FROM Janela_fechada WHERE janela_a_fechar = ?",
                         Int::class.java,
                         it
@@ -158,7 +166,7 @@ class AppJanelas {
 
     fun installPyhon() {
 
-        val roboId = conexDb.queryForObject(
+        val roboId = conexDbServer.queryForObject(
             """
     select idRobo from RoboCirurgiao where idProcess = '$id'
     """,
@@ -168,228 +176,264 @@ class AppJanelas {
 
         var nome = "SolucaoJanelas.py"
         var arqivoPython = File(nome)
-        arqivoPython.writeText("\n" +
-                "from mysql.connector import connect\n" +
-                "import psutil\n" +
-                "import platform\n" +
-                "import time\n" +
-                "import mysql.connector\n" +
-                "from datetime import datetime\n" +
-                "import ping3\n" +
-                "import json\n" +
-                "import requests\n" +
-                "\n" +
-                "#alerta = {\"text\": \"alerta\"}\n" +
-                "\n" +
-                "webhook = \"https://hooks.slack.com/services/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\"\n" +
-                "#requests.post(webhook, data=json.dumps(alerta))\n" +
-                "\n" +
-                "\n" +
-                "idRobo = 1\n" +
-                "\n" +
-                "#descomente abaixo quando for ora criar esse arquivo peo kotlin\n" +
-                "idRobo = ${roboId}\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "def mysql_connection(host, user, passwd, database=None):\n" +
-                "    connection = connect(\n" +
-                "        host=host,\n" +
-                "        user=user,\n" +
-                "        passwd=passwd,\n" +
-                "        database=database\n" +
-                "    )\n" +
-                "    return connection\n" +
-                "\n" +
-                "def bytes_para_gb(bytes_value):\n" +
-                "    return bytes_value / (1024 ** 3)\n" +
-                "\n" +
-                "def milissegundos_para_segundos(ms_value):\n" +
-                "    return ms_value / 1000\n" +
-                "\n" +
-                "connection = mysql_connection('localhost', 'medconnect', 'medconnect123', 'medconnect')\n" +
-                "\n" +
-                "#Disco\n" +
-                "\n" +
-                "meu_so = platform.system()\n" +
-                "if(meu_so == \"Linux\"):\n" +
-                "    nome_disco = '/'\n" +
-                "    disco = psutil.disk_usage(nome_disco)\n" +
-                "elif(meu_so == \"Windows\"):\n" +
-                "    nome_disco = 'C:\\\\'\n" +
-                "disco = psutil.disk_usage(nome_disco)\n" +
-                "discoPorcentagem = disco.percent\n" +
-                "discoTotal = \"{:.2f}\".format(bytes_para_gb(disco.total))\n" +
-                "discoUsado = \"{:.2f}\".format(bytes_para_gb(disco.used)) \n" +
-                "discoTempoLeitura = milissegundos_para_segundos(psutil.disk_io_counters(perdisk=False, nowrap=True)[4])\n" +
-                "discoTempoEscrita = milissegundos_para_segundos(psutil.disk_io_counters(perdisk=False, nowrap=True)[5])\n" +
-                "\n" +
-                "ins = [discoPorcentagem, discoTotal, discoUsado, discoTempoLeitura, discoTempoEscrita]\n" +
-                "componentes = [13,14,15,16,17]\n" +
-                "\n" +
-                "horarioAtual = datetime.now()\n" +
-                "horarioFormatado = horarioAtual.strftime('%Y-%m-%d %H:%M:%S')\n" +
-                "\n" +
-                "cursor = connection.cursor()\n" +
-                "for i in range(len(ins)):\n" +
-                "        \n" +
-                "    dado = ins[i]\n" +
-                "        \n" +
-                "    componente = componentes[i]\n" +
-                "    \n" +
-                "    query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, %s, %s, %s)\"\n" +
-                "    \n" +
-                "    cursor.execute(query, (dado, idRobo, componente, horarioFormatado))\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "print(\"\\nDisco porcentagem:\", discoPorcentagem,\n" +
-                "          \"\\nDisco total:\", discoTotal,\n" +
-                "          '\\nTempo de leitura do disco em segundos:', discoTempoLeitura,\n" +
-                "          '\\nTempo de escrita do disco em segundos:', discoTempoEscrita)\n" +
-                "\n" +
-                "\n" +
-                "while True:\n" +
-                "\n" +
-                "    #CPU\n" +
-                "    cpuPorcentagem = psutil.cpu_percent(None)\n" +
-                "    frequenciaCpuMhz = psutil.cpu_freq(percpu=False)\n" +
-                "    cpuVelocidadeEmGhz = \"{:.2f}\".format(frequenciaCpuMhz.current / 1000)\n" +
-                "    tempoSistema = psutil.cpu_times()[1] \n" +
-                "    processos = len(psutil.pids())\n" +
-                "    if(cpuPorcentagem > 60 and cpuPorcentagem > 70):\n" +
-                "        alerta = {\"text\": f\"alerta na cpu da maquina: {idRobo} está em estado de alerta\"}\n" +
-                "        requests.post(webhook, data=json.dumps(alerta))\n" +
-                "    if(cpuPorcentagem > 70 and cpuPorcentagem > 80):\n" +
-                "        alerta = {\"text\": f\"alerta na cpu da maquina: {idRobo} está em estado critico\"}\n" +
-                "        requests.post(webhook, data=json.dumps(alerta))\n" +
-                "    if(cpuPorcentagem > 80):\n" +
-                "        alerta = {\"text\": f\"alerta na cpu da maquina: {idRobo} está em estado de urgencia\"}\n" +
-                "        requests.post(webhook, data=json.dumps(alerta))\n" +
-                "        \n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "    \n" +
-                "    #Memoria\n" +
-                "    memoriaPorcentagem = psutil.virtual_memory()[2]\n" +
-                "    memoriaTotal = \"{:.2f}\".format(bytes_para_gb(psutil.virtual_memory().total))\n" +
-                "    memoriaUsada = \"{:.2f}\".format(bytes_para_gb(psutil.virtual_memory().used))\n" +
-                "    memoriaSwapPorcentagem = psutil.swap_memory().percent\n" +
-                "    memoriaSwapUso = \"{:.2f}\".format(bytes_para_gb(psutil.swap_memory().used))\n" +
-                "    if(memoriaPorcentagem > 60 and memoriaPorcentagem > 70):\n" +
-                "        alerta = {\"text\": f\"⚠️  Alerta na ram da maquina: {idRobo} está em estado de alerta\"}\n" +
-                "        requests.post(webhook, data=json.dumps(alerta))\n" +
-                "    if(memoriaPorcentagem > 70 and memoriaPorcentagem > 80):\n" +
-                "        alerta = {\"text\": f\"⚠️  Alerta na ram da maquina: {idRobo} está em estado critico\"}\n" +
-                "        requests.post(webhook, data=json.dumps(alerta))  \n" +
-                "    if(memoriaPorcentagem > 80):\n" +
-                "        alerta = {\"text\": f\" ⚠️  Alerta na ram da maquina: {idRobo} está em estado de urgencia\"}\n" +
-                "        requests.post(webhook, data=json.dumps(alerta))\n" +
-                "    \n" +
-                "    \"\"\"\n" +
-                "    Por enquanto não será usado\n" +
-                "    for particao in particoes:\n" +
-                "        try:\n" +
-                "            info_dispositivo = psutil.disk_usage(particao.mountpoint)\n" +
-                "            print(\"Ponto de Montagem:\", particao.mountpoint)\n" +
-                "            print(\"Sistema de Arquivos:\", particao.fstype)\n" +
-                "            print(\"Dispositivo:\", particao.device)\n" +
-                "            print(\"Espaço Total: {0:.2f} GB\".format(info_dispositivo.total / (1024 ** 3)) )\n" +
-                "            print(\"Espaço Usado: {0:.2f} GB\".format(info_dispositivo.used / (1024 ** 3)) )\n" +
-                "            print(\"Espaço Livre: {0:.2f} GB\".format(info_dispositivo.free / (1024 ** 3)) )\n" +
-                "            print(\"Porcentagem de Uso: {0:.2f}%\".format(info_dispositivo.percent))\n" +
-                "            print()\n" +
-                "        except PermissionError as e:\n" +
-                "            print(f\"Erro de permissão ao acessar {particao.mountpoint}: {e}\")\n" +
-                "        except Exception as e:\n" +
-                "            print(f\"Erro ao acessar {particao.mountpoint}: {e}\")\n" +
-                "            \"\"\"\n" +
-                "    #Rede\n" +
-                "    interval = 1\n" +
-                "    statusRede = 0\n" +
-                "    network_connections = psutil.net_connections()\n" +
-                "    network_active = any(conn.status == psutil.CONN_ESTABLISHED for conn in network_connections)\n" +
-                "    bytes_enviados = psutil.net_io_counters()[0]\n" +
-                "    bytes_recebidos = psutil.net_io_counters()[1]\n" +
-                "    \n" +
-                "    destino = \"google.com\"  \n" +
-                "    latencia = ping3.ping(destino) * 1000\n" +
-                "    if(latencia > 40 and latencia > 60):\n" +
-                "        alerta = {\"text\": f\"⚠️Alerta no ping da maquina: {idRobo} está em estado de alerta\"}\n" +
-                "        requests.post(webhook, data=json.dumps(alerta))\n" +
-                "    if(latencia > 60 and latencia > 80):\n" +
-                "        alerta = {\"text\": f\"⚠️Alerta no ping da maquina: {idRobo} está em estado critico\"}\n" +
-                "        requests.post(webhook, data=json.dumps(alerta))\n" +
-                "    if(latencia > 80):\n" +
-                "        alerta = {\"text\": f\"⚠️Alerta no ping da maquina: {idRobo} está em estado de urgencia\"}\n" +
-                "        requests.post(webhook, data=json.dumps(alerta))\n" +
-                "    \n" +
-                "    if latencia is not None:\n" +
-                "        print(f\"Latência para {destino}: {latencia:.2f} ms\")\n" +
-                "    else:\n" +
-                "        print(f\"Não foi possível alcançar {destino}\")  \n" +
-                "\n" +
-                "    \n" +
-                "    if network_active:\n" +
-                "\n" +
-                "        print (\"A rede está ativa.\")\n" +
-                "        statusRede= 1\n" +
-                "    else:\n" +
-                "\n" +
-                "        print (\"A rede não está ativa.\")\n" +
-                "\n" +
-                "    #Outros\n" +
-                "    boot_time = datetime.fromtimestamp(psutil.boot_time()).strftime(\"%Y-%m-%d %H:%M:%S\")\n" +
-                "    print(\"A maquina está ligada desde: \",boot_time)\n" +
-                "\n" +
-                "    horarioAtual = datetime.now()\n" +
-                "    horarioFormatado = horarioAtual.strftime('%Y-%m-%d %H:%M:%S')\n" +
-                "    \n" +
-                "    ins = [cpuPorcentagem, cpuVelocidadeEmGhz, tempoSistema, processos, memoriaPorcentagem,\n" +
-                "           memoriaTotal, memoriaUsada, memoriaSwapPorcentagem, memoriaSwapUso, statusRede, latencia,\n" +
-                "           bytes_enviados, bytes_recebidos]\n" +
-                "    componentes = [1,2,3,4,8,9,10,11,12,18,19,20,21]\n" +
-                "    \n" +
-                "    cursor = connection.cursor()\n" +
-                "    \n" +
-                "    for i in range(len(ins)):\n" +
-                "        dado = ins[i]\n" +
-                "        componente = componentes[i]\n" +
-                "\n" +
-                "        query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, %s, %s, %s)\"\n" +
-                "\n" +
-                "        cursor.execute(query, (dado, idRobo, componente, horarioFormatado))\n" +
-                "        connection.commit()\n" +
-                "\n" +
-                "       \n" +
-                "    print(\"\\nINFORMAÇÕES SOBRE PROCESSAMENTO: \")\n" +
-                "    print('\\nPorcentagem utilizada da CPU: ',cpuPorcentagem,\n" +
-                "          '\\nVelocidade da CPU: ',cpuVelocidadeEmGhz,\n" +
-                "          '\\nTempo de atividade da CPU: ', tempoSistema,\n" +
-                "          '\\nNumero de processos: ', processos,\n" +
-                "          '\\nPorcentagem utilizada de memoria: ', memoriaPorcentagem,\n" +
-                "          '\\nQuantidade usada de memoria: ', memoriaTotal,\n" +
-                "          '\\nPorcentagem usada de memoria Swap: ', memoriaSwapPorcentagem,\n" +
-                "          '\\nQuantidade usada de memoria Swap: ', memoriaSwapUso,\n" +
-                "          '\\nBytes enviados', bytes_enviados,\n" +
-                "          '\\nBytes recebidos', bytes_recebidos)\n" +
-                "   \n" +
-                "    \n" +
-                "       \n" +
-                "\n" +
-                "\n" +
-                "    time.sleep(5)\n" +
-                "\n" +
-                "cursor.close()\n" +
-                "connection.close()\n" +
-                "    ")
+        arqivoPython.writeText("\\n\" +\n" +
+                "                    \"from mysql.connector import connect\\n\" +\n" +
+                "                    \"import psutil\\n\" +\n" +
+                "                    \"import platform\\n\" +\n" +
+                "                    \"import time\\n\" +\n" +
+                "                    \"import mysql.connector\\n\" +\n" +
+                "                    \"from datetime import datetime\\n\" +\n" +
+                "                    \"import ping3\\n\" +\n" +
+                "                    \"import json\\n\" +\n" +
+                "                    \"import requests\\n\" +\n" +
+                "                    \"import pymssql\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"#alerta = {\\\"text\\\": \\\"alerta\\\"}\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"webhook = \\\"https://hooks.slack.com/services/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\\\"\\n\" +\n" +
+                "                    \"#requests.post(webhook, data=json.dumps(alerta))\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"idRobo = 1\\n\" +\n" +
+                "                    \"#descomente abaixo quando for ora criar esse arquivo pelo kotlin\\n\" +\n" +
+                "                    \"idRobo = ${roboId}\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"def mysql_connection(host, user, passwd, database=None):\\n\" +\n" +
+                "                    \"    connection = connect(\\n\" +\n" +
+                "                    \"        host=host,\\n\" +\n" +
+                "                    \"        user=user,\\n\" +\n" +
+                "                    \"        passwd=passwd,\\n\" +\n" +
+                "                    \"        database=database\\n\" +\n" +
+                "                    \"    )\\n\" +\n" +
+                "                    \"    return connection\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"def bytes_para_gb(bytes_value):\\n\" +\n" +
+                "                    \"    return bytes_value / (1024 ** 3)\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"def milissegundos_para_segundos(ms_value):\\n\" +\n" +
+                "                    \"    return ms_value / 1000\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"connection = mysql_connection('localhost', 'medconnect', 'medconnect123', 'medconnect')\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"sqlserver_connection = pymssql.connect(server='52.7.105.138', database='medconnect', user='sa', password='medconnect123');\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"#Disco\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"meu_so = platform.system()\\n\" +\n" +
+                "                    \"if(meu_so == \\\"Linux\\\"):\\n\" +\n" +
+                "                    \"    nome_disco = '/'\\n\" +\n" +
+                "                    \"    disco = psutil.disk_usage(nome_disco)\\n\" +\n" +
+                "                    \"elif(meu_so == \\\"Windows\\\"):\\n\" +\n" +
+                "                    \"    nome_disco = 'C:\\\\\\\\'\\n\" +\n" +
+                "                    \"disco = psutil.disk_usage(nome_disco)\\n\" +\n" +
+                "                    \"discoPorcentagem = disco.percent\\n\" +\n" +
+                "                    \"discoTotal = \\\"{:.2f}\\\".format(bytes_para_gb(disco.total))\\n\" +\n" +
+                "                    \"discoUsado = \\\"{:.2f}\\\".format(bytes_para_gb(disco.used)) \\n\" +\n" +
+                "                    \"discoTempoLeitura = milissegundos_para_segundos(psutil.disk_io_counters(perdisk=False, nowrap=True)[4])\\n\" +\n" +
+                "                    \"discoTempoEscrita = milissegundos_para_segundos(psutil.disk_io_counters(perdisk=False, nowrap=True)[5])\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"ins = [discoPorcentagem, discoTotal, discoUsado, discoTempoLeitura, discoTempoEscrita]\\n\" +\n" +
+                "                    \"componentes = [10,11,12,13,14]\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"horarioAtual = datetime.now()\\n\" +\n" +
+                "                    \"horarioFormatado = horarioAtual.strftime('%Y-%m-%d %H:%M:%S')\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"#banco de contenção\\n\" +\n" +
+                "                    \"cursor = connection.cursor()\\n\" +\n" +
+                "                    \"server_cursor = sqlserver_connection.cursor()\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"queryExis = \\\"SELECT COUNT(*) AS count FROM RoboCirurgiao WHERE idRobo = 22\\\"\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"cursor.execute(queryExis)\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"result = cursor.fetchone()\\n\" +\n" +
+                "                    \"if result[0] == 0:\\n\" +\n" +
+                "                    \"    querys = \\\"INSERT INTO RoboCirurgiao (idRobo, modelo, fabricacao, fkStatus, idProcess, fkHospital) VALUES (22, 'Modelo A', 'contenção', 1, 'a', 1)\\\"\\n\" +\n" +
+                "                    \"    cursor.execute(querys)\\n\" +\n" +
+                "                    \"    connection.commit()\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"for i in range(len(ins)):\\n\" +\n" +
+                "                    \"        \\n\" +\n" +
+                "                    \"    dado = ins[i]\\n\" +\n" +
+                "                    \"        \\n\" +\n" +
+                "                    \"    componente = componentes[i]\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    query = \\\"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, %s, %s, %s)\\\"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    #banco de contenção\\n\" +\n" +
+                "                    \"    cursor.execute(query, (dado, 22, componente, horarioFormatado))\\n\" +\n" +
+                "                    \"    server_cursor.execute(query, (dado, idRobo, componente, horarioFormatado))\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"print(\\\"\\\\nDisco porcentagem:\\\", discoPorcentagem,\\n\" +\n" +
+                "                    \"          \\\"\\\\nDisco total:\\\", discoTotal,\\n\" +\n" +
+                "                    \"          '\\\\nTempo de leitura do disco em segundos:', discoTempoLeitura,\\n\" +\n" +
+                "                    \"          '\\\\nTempo de escrita do disco em segundos:', discoTempoEscrita)\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"while True:\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"    #CPU\\n\" +\n" +
+                "                    \"    cpuPorcentagem = psutil.cpu_percent(None)\\n\" +\n" +
+                "                    \"    frequenciaCpuMhz = psutil.cpu_freq(percpu=False)\\n\" +\n" +
+                "                    \"    cpuVelocidadeEmGhz = \\\"{:.2f}\\\".format(frequenciaCpuMhz.current / 1000)\\n\" +\n" +
+                "                    \"    tempoSistema = psutil.cpu_times()[1] \\n\" +\n" +
+                "                    \"    processos = len(psutil.pids())\\n\" +\n" +
+                "                    \"    if(cpuPorcentagem > 60 and cpuPorcentagem > 70):\\n\" +\n" +
+                "                    \"        alerta = {\\\"text\\\": f\\\"alerta na cpu da maquina: {idRobo} está em estado de alerta\\\"}\\n\" +\n" +
+                "                    \"        requests.post(webhook, data=json.dumps(alerta))\\n\" +\n" +
+                "                    \"    if(cpuPorcentagem > 70 and cpuPorcentagem > 80):\\n\" +\n" +
+                "                    \"        alerta = {\\\"text\\\": f\\\"alerta na cpu da maquina: {idRobo} está em estado critico\\\"}\\n\" +\n" +
+                "                    \"        requests.post(webhook, data=json.dumps(alerta))\\n\" +\n" +
+                "                    \"    if(cpuPorcentagem > 80):\\n\" +\n" +
+                "                    \"        alerta = {\\\"text\\\": f\\\"alerta na cpu da maquina: {idRobo} está em estado de urgencia\\\"}\\n\" +\n" +
+                "                    \"        requests.post(webhook, data=json.dumps(alerta))\\n\" +\n" +
+                "                    \"        \\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    #Memoria\\n\" +\n" +
+                "                    \"    memoriaPorcentagem = psutil.virtual_memory()[2]\\n\" +\n" +
+                "                    \"    memoriaTotal = \\\"{:.2f}\\\".format(bytes_para_gb(psutil.virtual_memory().total))\\n\" +\n" +
+                "                    \"    memoriaUsada = \\\"{:.2f}\\\".format(bytes_para_gb(psutil.virtual_memory().used))\\n\" +\n" +
+                "                    \"    memoriaSwapPorcentagem = psutil.swap_memory().percent\\n\" +\n" +
+                "                    \"    memoriaSwapUso = \\\"{:.2f}\\\".format(bytes_para_gb(psutil.swap_memory().used))\\n\" +\n" +
+                "                    \"    if(memoriaPorcentagem > 60 and memoriaPorcentagem > 70):\\n\" +\n" +
+                "                    \"        alerta = {\\\"text\\\": f\\\"⚠️  Alerta na ram da maquina: {idRobo} está em estado de alerta\\\"}\\n\" +\n" +
+                "                    \"        requests.post(webhook, data=json.dumps(alerta))\\n\" +\n" +
+                "                    \"    if(memoriaPorcentagem > 70 and memoriaPorcentagem > 80):\\n\" +\n" +
+                "                    \"        alerta = {\\\"text\\\": f\\\"⚠️  Alerta na ram da maquina: {idRobo} está em estado critico\\\"}\\n\" +\n" +
+                "                    \"        requests.post(webhook, data=json.dumps(alerta))  \\n\" +\n" +
+                "                    \"    if(memoriaPorcentagem > 80):\\n\" +\n" +
+                "                    \"        alerta = {\\\"text\\\": f\\\" ⚠️  Alerta na ram da maquina: {idRobo} está em estado de urgencia\\\"}\\n\" +\n" +
+                "                    \"        requests.post(webhook, data=json.dumps(alerta))\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    \\\"\\\"\\\"\\n\" +\n" +
+                "                    \"    Por enquanto não será usado\\n\" +\n" +
+                "                    \"    for particao in particoes:\\n\" +\n" +
+                "                    \"        try:\\n\" +\n" +
+                "                    \"            info_dispositivo = psutil.disk_usage(particao.mountpoint)\\n\" +\n" +
+                "                    \"            print(\\\"Ponto de Montagem:\\\", particao.mountpoint)\\n\" +\n" +
+                "                    \"            print(\\\"Sistema de Arquivos:\\\", particao.fstype)\\n\" +\n" +
+                "                    \"            print(\\\"Dispositivo:\\\", particao.device)\\n\" +\n" +
+                "                    \"            print(\\\"Espaço Total: {0:.2f} GB\\\".format(info_dispositivo.total / (1024 ** 3)) )\\n\" +\n" +
+                "                    \"            print(\\\"Espaço Usado: {0:.2f} GB\\\".format(info_dispositivo.used / (1024 ** 3)) )\\n\" +\n" +
+                "                    \"            print(\\\"Espaço Livre: {0:.2f} GB\\\".format(info_dispositivo.free / (1024 ** 3)) )\\n\" +\n" +
+                "                    \"            print(\\\"Porcentagem de Uso: {0:.2f}%\\\".format(info_dispositivo.percent))\\n\" +\n" +
+                "                    \"            print()\\n\" +\n" +
+                "                    \"        except PermissionError as e:\\n\" +\n" +
+                "                    \"            print(f\\\"Erro de permissão ao acessar {particao.mountpoint}: {e}\\\")\\n\" +\n" +
+                "                    \"        except Exception as e:\\n\" +\n" +
+                "                    \"            print(f\\\"Erro ao acessar {particao.mountpoint}: {e}\\\")\\n\" +\n" +
+                "                    \"            \\\"\\\"\\\"\\n\" +\n" +
+                "                    \"    #Rede\\n\" +\n" +
+                "                    \"    interval = 1\\n\" +\n" +
+                "                    \"    statusRede = 0\\n\" +\n" +
+                "                    \"    network_connections = psutil.net_connections()\\n\" +\n" +
+                "                    \"    network_active = any(conn.status == psutil.CONN_ESTABLISHED for conn in network_connections)\\n\" +\n" +
+                "                    \"    bytes_enviados = psutil.net_io_counters()[0]\\n\" +\n" +
+                "                    \"    bytes_recebidos = psutil.net_io_counters()[1]\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    destino = \\\"google.com\\\"  \\n\" +\n" +
+                "                    \"    latencia = ping3.ping(destino) * 1000\\n\" +\n" +
+                "                    \"    if(latencia > 40 and latencia > 60):\\n\" +\n" +
+                "                    \"        alerta = {\\\"text\\\": f\\\"⚠️Alerta no ping da maquina: {idRobo} está em estado de alerta\\\"}\\n\" +\n" +
+                "                    \"        requests.post(webhook, data=json.dumps(alerta))\\n\" +\n" +
+                "                    \"    if(latencia > 60 and latencia > 80):\\n\" +\n" +
+                "                    \"        alerta = {\\\"text\\\": f\\\"⚠️Alerta no ping da maquina: {idRobo} está em estado critico\\\"}\\n\" +\n" +
+                "                    \"        requests.post(webhook, data=json.dumps(alerta))\\n\" +\n" +
+                "                    \"    if(latencia > 80):\\n\" +\n" +
+                "                    \"        alerta = {\\\"text\\\": f\\\"⚠️Alerta no ping da maquina: {idRobo} está em estado de urgencia\\\"}\\n\" +\n" +
+                "                    \"        requests.post(webhook, data=json.dumps(alerta))\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    if latencia is not None:\\n\" +\n" +
+                "                    \"        print(f\\\"Latência para {destino}: {latencia:.2f} ms\\\")\\n\" +\n" +
+                "                    \"    else:\\n\" +\n" +
+                "                    \"        print(f\\\"Não foi possível alcançar {destino}\\\")  \\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    if network_active:\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"        print (\\\"A rede está ativa.\\\")\\n\" +\n" +
+                "                    \"        statusRede= 1\\n\" +\n" +
+                "                    \"    else:\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"        print (\\\"A rede não está ativa.\\\")\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"    #Outros\\n\" +\n" +
+                "                    \"    boot_time = datetime.fromtimestamp(psutil.boot_time()).strftime(\\\"%Y-%m-%d %H:%M:%S\\\")\\n\" +\n" +
+                "                    \"    print(\\\"A maquina está ligada desde: \\\",boot_time)\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"    horarioAtual = datetime.now()\\n\" +\n" +
+                "                    \"    horarioFormatado = horarioAtual.strftime('%Y-%m-%d %H:%M:%S')\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    ins = [cpuPorcentagem, cpuVelocidadeEmGhz, tempoSistema, processos, memoriaPorcentagem,\\n\" +\n" +
+                "                    \"           memoriaTotal, memoriaUsada, memoriaSwapPorcentagem, memoriaSwapUso, statusRede, latencia,\\n\" +\n" +
+                "                    \"           bytes_enviados, bytes_recebidos]\\n\" +\n" +
+                "                    \"    componentes = [1,2,3,4,5,6,7,8,9,15,16,17,18]\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    cursor = connection.cursor()\\n\" +\n" +
+                "                    \"    server_cursor = sqlserver_connection.cursor()\\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"    for i in range(len(ins)):\\n\" +\n" +
+                "                    \"        dado = ins[i]\\n\" +\n" +
+                "                    \"        componente = componentes[i]\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"        query = \\\"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, %s, %s, %s)\\\"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"        #banco de contenção abaixo\\n\" +\n" +
+                "                    \"        cursor.execute(query, (dado, 22, componente, horarioFormatado))\\n\" +\n" +
+                "                    \"        server_cursor.execute(query, (dado, idRobo, componente, horarioFormatado))\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"        \\n\" +\n" +
+                "                    \"        connection.commit()\\n\" +\n" +
+                "                    \"        sqlserver_connection.commit()\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"       \\n\" +\n" +
+                "                    \"    print(\\\"\\\\nINFORMAÇÕES SOBRE PROCESSAMENTO: \\\")\\n\" +\n" +
+                "                    \"    print('\\\\nPorcentagem utilizada da CPU: ',cpuPorcentagem,\\n\" +\n" +
+                "                    \"          '\\\\nVelocidade da CPU: ',cpuVelocidadeEmGhz,\\n\" +\n" +
+                "                    \"          '\\\\nTempo de atividade da CPU: ', tempoSistema,\\n\" +\n" +
+                "                    \"          '\\\\nNumero de processos: ', processos,\\n\" +\n" +
+                "                    \"          '\\\\nPorcentagem utilizada de memoria: ', memoriaPorcentagem,\\n\" +\n" +
+                "                    \"          '\\\\nQuantidade usada de memoria: ', memoriaTotal,\\n\" +\n" +
+                "                    \"          '\\\\nPorcentagem usada de memoria Swap: ', memoriaSwapPorcentagem,\\n\" +\n" +
+                "                    \"          '\\\\nQuantidade usada de memoria Swap: ', memoriaSwapUso,\\n\" +\n" +
+                "                    \"          '\\\\nBytes enviados', bytes_enviados,\\n\" +\n" +
+                "                    \"          '\\\\nBytes recebidos', bytes_recebidos)\\n\" +\n" +
+                "                    \"   \\n\" +\n" +
+                "                    \"    \\n\" +\n" +
+                "                    \"       \\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"    time.sleep(5)\\n\" +\n" +
+                "                    \"\\n\" +\n" +
+                "                    \"cursor.close()\\n\" +\n" +
+                "                    \"server_cursor.close()\\n\" +\n" +
+                "                    \"connection.close()\\n\" +\n" +
+                "                    \"sqlserver_connection.close()\\n\" +\n" +
+                "                    \"    \\n")
 
     }
 
     fun cadastroMaquina(fkHospital: Int) {
 
-        conexDb.execute(
+        conexDbServer.execute(
             """
                 INSERT INTO RoboCirurgiao (modelo, fabricacao, fkStatus, idProcess, fkHospital) 
 VALUES ('Modelo A', '${Looca().processador.fabricante}', 1, '$id', $fkHospital);
@@ -413,7 +457,7 @@ VALUES ('Modelo A', '${Looca().processador.fabricante}', 1, '$id', $fkHospital);
         var senha = cli.nextLine()
         println("")
 
-        var fkHospital = conexDb.queryForObject(
+        var fkHospital = conexDbServer.queryForObject(
             """
     select fkHospital from usuario
     where email = '$email' AND senha = '$senha'
