@@ -104,8 +104,11 @@ class AppJanelas {
             id
         ) ?: 0
 
+        println("idRobo abaixo")
+        println(idRobo)
+
         while (true) {
-            val janelaAtual = Looca().grupoDeJanelas.janelas.getOrNull(2)?.titulo?.toString()
+            val janelaAtual = Looca().grupoDeJanelas.janelas.getOrNull(1)?.titulo?.toString()
             janelaAtual?.let {
                 conexDbServer.update(
                     "INSERT INTO Janela (Janela_atual, ativo, fkMaquina) VALUES (?, ?, ?)",
@@ -115,11 +118,11 @@ class AppJanelas {
             println(janelaAtual)
 
             val qtdProcessos = Looca().grupoDeProcessos.totalProcessos
-            conexDbServer.update(
-                "INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (?, ?, ?, ?)",
-                qtdProcessos, idRobo, 20, LocalDateTime.now()
-            )
-            println(qtdProcessos)
+        //    conexDbServer.update(
+        //        "INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (?, ?, ?, ?)",
+        //        qtdProcessos, idRobo, 20, LocalDateTime.now()
+        //    )
+        //    println(qtdProcessos)
 
 
 
@@ -137,7 +140,7 @@ class AppJanelas {
 
             }
             else{ var janelaRecente = conexDbServer.queryForObject(
-                "SELECT janela_a_fechar FROM Janela_fechada WHERE fkMaquina1 = ? ORDER BY idJanela_fechada DESC LIMIT 1",
+                "SELECT TOP 1 janela_a_fechar FROM Janela_fechada WHERE fkMaquina1 = ? ORDER BY idJanela_fechada DESC",
                 String::class.java,
                 idRobo
             )
