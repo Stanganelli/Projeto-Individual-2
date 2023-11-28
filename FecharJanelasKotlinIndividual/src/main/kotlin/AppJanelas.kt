@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 
 
 class AppJanelas {
-    var conexDb: JdbcTemplate
+ //   var conexDb: JdbcTemplate
     var conexDbServer: JdbcTemplate
     var id = Looca().processador.id
     var cli = Scanner(System.`in`)
@@ -24,14 +24,14 @@ class AppJanelas {
 
 
     init {
-        val dataSource = BasicDataSource()
-        dataSource.driverClassName = "com.mysql.cj.jdbc.Driver"
-        val serverName = "localhost"
-        val mydatabase = "medconnect"
-        dataSource.username = "medconnect"
-        dataSource.password = "medconnect123"
-        dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
-        conexDb = JdbcTemplate(dataSource)
+//        val dataSource = BasicDataSource()
+  //      dataSource.driverClassName = "com.mysql.cj.jdbc.Driver"
+    //    val serverName = "localhost"
+      //  val mydatabase = "medconnect"
+        //dataSource.username = "medconnect"
+          //dataSource.password = "medconnect123"
+           //dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
+            //conexDb = JdbcTemplate(dataSource)
 
         val dataSoruceServer = BasicDataSource()
         dataSoruceServer.url = "jdbc:sqlserver://52.7.105.138:1433;databaseName=medconnect;encrypt=false";
