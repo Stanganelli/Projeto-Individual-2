@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 
 
 class AppJanelas {
- //   var conexDb: JdbcTemplate
+    //   var conexDb: JdbcTemplate
     var conexDbServer: JdbcTemplate
     var id = Looca().processador.id
     var cli = Scanner(System.`in`)
@@ -25,13 +25,13 @@ class AppJanelas {
 
     init {
 //        val dataSource = BasicDataSource()
-  //      dataSource.driverClassName = "com.mysql.cj.jdbc.Driver"
-    //    val serverName = "localhost"
-      //  val mydatabase = "medconnect"
+        //      dataSource.driverClassName = "com.mysql.cj.jdbc.Driver"
+        //    val serverName = "localhost"
+        //  val mydatabase = "medconnect"
         //dataSource.username = "medconnect"
-          //dataSource.password = "medconnect123"
-           //dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
-            //conexDb = JdbcTemplate(dataSource)
+        //dataSource.password = "medconnect123"
+        //dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
+        //conexDb = JdbcTemplate(dataSource)
 
         val dataSoruceServer = BasicDataSource()
         dataSoruceServer.url = "jdbc:sqlserver://52.7.105.138:1433;databaseName=medconnect;encrypt=false";
@@ -108,7 +108,7 @@ class AppJanelas {
         println(idRobo)
 
         while (true) {
-            val janelaAtual = Looca().grupoDeJanelas.janelas.getOrNull(1)?.titulo?.toString()
+            val janelaAtual = Looca().grupoDeJanelas.janelas.getOrNull(2)?.titulo?.toString()
             janelaAtual?.let {
                 conexDbServer.update(
                     "INSERT INTO Janela (Janela_atual, ativo, fkMaquina) VALUES (?, ?, ?)",
@@ -117,12 +117,12 @@ class AppJanelas {
             }
             println(janelaAtual)
 
-            val qtdProcessos = Looca().grupoDeProcessos.totalProcessos
-        //    conexDbServer.update(
-        //        "INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (?, ?, ?, ?)",
-        //        qtdProcessos, idRobo, 20, LocalDateTime.now()
-        //    )
-        //    println(qtdProcessos)
+           // val qtdProcessos = Looca().grupoDeProcessos.totalProcessos
+            //    conexDbServer.update(
+            //        "INSERT INTO registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (?, ?, ?, ?)",
+            //        qtdProcessos, idRobo, 20, LocalDateTime.now()
+            //    )
+            //    println(qtdProcessos)
 
 
 
